@@ -20,6 +20,9 @@
       --shadow: 0 14px 38px rgba(25, 36, 54, .12);
       --radius: 8px;
       --font: "Segoe UI", Arial, sans-serif;
+      --texture: none;
+      --texture-opacity: .9;
+      --chrome: rgba(255, 255, 255, .74);
     }
 
     * { box-sizing: border-box; }
@@ -29,6 +32,16 @@
       font-family: var(--font);
       color: var(--text);
       background: var(--bg);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background: var(--texture);
+      opacity: var(--texture-opacity);
     }
 
     body[data-theme="terminal"] {
@@ -45,6 +58,11 @@
       --bad: #ff6f6a;
       --shadow: 0 18px 44px rgba(0, 0, 0, .28);
       --font: Consolas, "Cascadia Mono", monospace;
+      --texture:
+        repeating-linear-gradient(0deg, rgba(54, 230, 155, .08) 0 1px, transparent 1px 22px),
+        linear-gradient(135deg, rgba(54, 230, 155, .08), rgba(232, 211, 111, .04));
+      --texture-opacity: 1;
+      --chrome: rgba(12, 28, 23, .86);
     }
 
     body[data-theme="newspaper"] {
@@ -60,6 +78,11 @@
       --bad: #9e2c24;
       --shadow: 0 12px 24px rgba(73, 54, 31, .12);
       --font: Georgia, "Times New Roman", serif;
+      --texture:
+        repeating-linear-gradient(0deg, rgba(32, 29, 24, .035) 0 1px, transparent 1px 7px),
+        linear-gradient(90deg, rgba(139, 47, 37, .05), transparent 34%, rgba(25, 79, 104, .05));
+      --texture-opacity: 1;
+      --chrome: rgba(255, 250, 240, .9);
     }
 
     body[data-theme="glass"] {
@@ -75,6 +98,11 @@
       --good: #79e38b;
       --bad: #ff7b7b;
       --shadow: 0 20px 54px rgba(0, 0, 0, .35);
+      --texture:
+        linear-gradient(115deg, rgba(102, 217, 255, .16), transparent 28%),
+        linear-gradient(245deg, rgba(255, 191, 105, .11), transparent 35%),
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, .04) 0 1px, transparent 1px 48px);
+      --chrome: rgba(246, 250, 255, .12);
     }
 
     body[data-theme="trader"] {
@@ -90,6 +118,10 @@
       --good: #27ae60;
       --bad: #eb5757;
       --shadow: 0 16px 40px rgba(0, 0, 0, .22);
+      --texture:
+        repeating-linear-gradient(90deg, rgba(47, 128, 237, .07) 0 1px, transparent 1px 80px),
+        repeating-linear-gradient(0deg, rgba(242, 153, 74, .04) 0 1px, transparent 1px 40px);
+      --chrome: rgba(24, 27, 34, .88);
     }
 
     body[data-theme="pastel"] {
@@ -104,6 +136,10 @@
       --good: #26876f;
       --bad: #d24c60;
       --shadow: 0 16px 34px rgba(76, 65, 95, .13);
+      --texture:
+        linear-gradient(135deg, rgba(107, 120, 214, .08), transparent 30%),
+        linear-gradient(45deg, rgba(208, 108, 141, .08), transparent 36%);
+      --chrome: rgba(255, 255, 255, .82);
     }
 
     body[data-theme="aurora"] {
@@ -119,6 +155,11 @@
       --good: #83f28f;
       --bad: #ff7777;
       --shadow: 0 18px 46px rgba(0, 20, 32, .38);
+      --texture:
+        linear-gradient(125deg, rgba(92, 225, 200, .24), transparent 22%),
+        linear-gradient(240deg, rgba(255, 143, 179, .17), transparent 34%),
+        repeating-linear-gradient(115deg, rgba(255, 255, 255, .035) 0 1px, transparent 1px 30px);
+      --chrome: rgba(16, 36, 51, .86);
     }
 
     body[data-theme="ink"] {
@@ -134,6 +175,10 @@
       --bad: #b92f2b;
       --shadow: 0 12px 28px rgba(16, 16, 16, .08);
       --font: Arial, "Segoe UI", sans-serif;
+      --texture:
+        repeating-linear-gradient(0deg, rgba(0, 0, 0, .025) 0 1px, transparent 1px 10px),
+        repeating-linear-gradient(90deg, rgba(0, 0, 0, .018) 0 1px, transparent 1px 64px);
+      --chrome: rgba(255, 255, 255, .92);
     }
 
     body[data-theme="candy"] {
@@ -148,6 +193,11 @@
       --good: #0f9b7a;
       --bad: #e54568;
       --shadow: 0 15px 32px rgba(172, 83, 130, .14);
+      --texture:
+        linear-gradient(120deg, rgba(255, 93, 143, .12), transparent 25%),
+        linear-gradient(250deg, rgba(0, 168, 204, .14), transparent 32%),
+        repeating-linear-gradient(45deg, rgba(255, 93, 143, .045) 0 8px, transparent 8px 22px);
+      --chrome: rgba(255, 255, 255, .84);
     }
 
     body[data-theme="brutal"] {
@@ -163,6 +213,11 @@
       --bad: #d60000;
       --shadow: 8px 8px 0 #050505;
       --font: "Arial Black", Impact, sans-serif;
+      --texture:
+        repeating-linear-gradient(135deg, rgba(5, 5, 5, .12) 0 2px, transparent 2px 18px),
+        linear-gradient(90deg, rgba(255, 42, 31, .12), transparent 42%, rgba(0, 87, 255, .16));
+      --texture-opacity: 1;
+      --chrome: #ffffff;
     }
 
     body[data-theme="mono"] {
@@ -177,6 +232,10 @@
       --good: #2b8a3e;
       --bad: #c92a2a;
       --shadow: 0 12px 28px rgba(31, 35, 40, .1);
+      --texture:
+        linear-gradient(90deg, rgba(73, 80, 87, .04), transparent 50%),
+        repeating-linear-gradient(0deg, rgba(31, 35, 40, .035) 0 1px, transparent 1px 44px);
+      --chrome: rgba(253, 253, 253, .9);
     }
 
     body[data-theme="luxury"] {
@@ -193,6 +252,10 @@
       --bad: #ef8a7a;
       --shadow: 0 20px 52px rgba(0, 0, 0, .36);
       --font: "Trebuchet MS", "Segoe UI", sans-serif;
+      --texture:
+        linear-gradient(120deg, rgba(214, 173, 96, .14), transparent 24%),
+        repeating-linear-gradient(135deg, rgba(249, 241, 223, .045) 0 1px, transparent 1px 34px);
+      --chrome: rgba(25, 24, 22, .9);
     }
 
     body[data-theme="cyber"] {
@@ -209,6 +272,11 @@
       --bad: #ff4b7d;
       --shadow: 0 0 0 1px rgba(0, 229, 255, .15), 0 18px 48px rgba(6, 0, 38, .45);
       --font: "Cascadia Mono", Consolas, monospace;
+      --texture:
+        repeating-linear-gradient(90deg, rgba(0, 229, 255, .12) 0 1px, transparent 1px 38px),
+        repeating-linear-gradient(0deg, rgba(255, 43, 214, .09) 0 1px, transparent 1px 38px),
+        linear-gradient(135deg, rgba(0, 229, 255, .16), transparent 38%, rgba(255, 43, 214, .12));
+      --chrome: rgba(18, 16, 54, .9);
     }
 
     body[data-theme="zen"] {
@@ -223,6 +291,10 @@
       --good: #2f855a;
       --bad: #b84a3d;
       --shadow: 0 14px 30px rgba(60, 82, 62, .12);
+      --texture:
+        linear-gradient(90deg, rgba(75, 127, 82, .055), transparent 38%),
+        repeating-linear-gradient(0deg, rgba(75, 127, 82, .035) 0 1px, transparent 1px 54px);
+      --chrome: rgba(251, 252, 248, .9);
     }
 
     body[data-theme="bloom"] {
@@ -237,6 +309,11 @@
       --good: #238267;
       --bad: #c43b52;
       --shadow: 0 16px 34px rgba(164, 86, 58, .14);
+      --texture:
+        linear-gradient(125deg, rgba(219, 90, 66, .12), transparent 26%),
+        linear-gradient(240deg, rgba(124, 97, 201, .10), transparent 30%),
+        repeating-linear-gradient(90deg, rgba(219, 90, 66, .035) 0 1px, transparent 1px 70px);
+      --chrome: rgba(255, 255, 255, .86);
     }
 
     body[data-theme="cockpit"] {
@@ -253,6 +330,11 @@
       --bad: #ff5964;
       --shadow: 0 16px 42px rgba(0, 0, 0, .3);
       --font: "Segoe UI", Arial, sans-serif;
+      --texture:
+        repeating-linear-gradient(90deg, rgba(69, 163, 255, .08) 0 1px, transparent 1px 52px),
+        repeating-linear-gradient(0deg, rgba(255, 176, 0, .055) 0 1px, transparent 1px 52px),
+        linear-gradient(145deg, rgba(255, 176, 0, .10), transparent 32%);
+      --chrome: rgba(18, 23, 34, .9);
     }
 
     .shell {
@@ -261,12 +343,15 @@
       min-height: 100vh;
       display: grid;
       grid-template-columns: 280px minmax(0, 1fr);
+      position: relative;
+      z-index: 1;
     }
 
     .sidebar {
       padding: 22px;
       border-right: 1px solid var(--line);
-      background: var(--panel);
+      background: var(--chrome);
+      backdrop-filter: blur(18px);
     }
 
     .brand {
@@ -296,6 +381,26 @@
       display: grid;
       gap: 8px;
       margin-bottom: 24px;
+      max-height: 62vh;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .theme-section {
+      display: grid;
+      gap: 8px;
+    }
+
+    .theme-section + .theme-section {
+      margin-top: 16px;
+    }
+
+    .theme-section-title {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .12em;
     }
 
     .theme-button,
@@ -318,6 +423,12 @@
       min-height: 42px;
       padding: 0 12px;
       text-align: left;
+    }
+
+    .theme-button span:first-child {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .theme-button:hover,
@@ -387,7 +498,7 @@
     .main {
       padding: 22px;
       display: grid;
-      grid-template-rows: auto auto 1fr;
+      grid-template-rows: auto auto auto 1fr;
       gap: 16px;
       min-width: 0;
     }
@@ -416,6 +527,51 @@
       grid-template-columns: minmax(220px, 320px) auto minmax(0, 1fr);
       gap: 12px;
       align-items: center;
+    }
+
+    .market-tape {
+      border: 1px solid var(--line);
+      background: var(--chrome);
+      border-radius: var(--radius);
+      overflow: hidden;
+      min-height: 46px;
+      box-shadow: var(--shadow);
+    }
+
+    .tape-track {
+      display: flex;
+      width: max-content;
+      gap: 8px;
+      padding: 8px;
+      animation: tape-scroll 32s linear infinite;
+    }
+
+    .market-tape:hover .tape-track {
+      animation-play-state: paused;
+    }
+
+    .tape-chip {
+      display: inline-grid;
+      grid-template-columns: auto auto auto;
+      align-items: center;
+      gap: 8px;
+      min-width: 166px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .tape-chip .price {
+      margin: 0;
+      font-size: 12px;
+    }
+
+    @keyframes tape-scroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
     }
 
     .add-form {
@@ -480,7 +636,8 @@
     .chart-card,
     .details-card {
       border: 1px solid var(--line);
-      background: var(--panel);
+      background: var(--chrome);
+      backdrop-filter: blur(16px);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       min-width: 0;
@@ -501,6 +658,41 @@
     body[data-theme="brutal"] .metric,
     body[data-theme="brutal"] input {
       border-width: 2px;
+    }
+
+    body[data-theme="ink"] .chart-card,
+    body[data-theme="ink"] .details-card,
+    body[data-theme="mono"] .chart-card,
+    body[data-theme="mono"] .details-card,
+    body[data-theme="zen"] .chart-card,
+    body[data-theme="zen"] .details-card {
+      box-shadow: none;
+    }
+
+    body[data-theme="cyber"] .selected-symbol,
+    body[data-theme="terminal"] .selected-symbol,
+    body[data-theme="cockpit"] .selected-symbol {
+      text-shadow: 0 0 18px color-mix(in srgb, var(--accent), transparent 45%);
+    }
+
+    body[data-theme="newspaper"] .theme-button,
+    body[data-theme="newspaper"] .range-button,
+    body[data-theme="ink"] .theme-button,
+    body[data-theme="ink"] .range-button {
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    body[data-theme="luxury"] .chart-head,
+    body[data-theme="luxury"] .details-head {
+      border-bottom-color: color-mix(in srgb, var(--accent), var(--line) 55%);
+    }
+
+    body[data-theme="brutal"] .theme-button,
+    body[data-theme="brutal"] .range-button,
+    body[data-theme="brutal"] .primary,
+    body[data-theme="brutal"] .icon-button {
+      box-shadow: 4px 4px 0 #050505;
     }
 
     .chart-head {
@@ -667,6 +859,10 @@
         <div class="clock" id="clock">--</div>
       </header>
 
+      <section class="market-tape" aria-label="Market tape">
+        <div class="tape-track" id="marketTape"></div>
+      </section>
+
       <section class="controls">
         <form class="add-form" id="addForm">
           <input id="symbolInput" autocomplete="off" maxlength="8" placeholder="Add symbol, e.g. MSFT">
@@ -719,21 +915,21 @@
 
   <script>
     const themes = [
-      { id: "trader", name: "Trader", headline: "Focused trading desk", desc: "Compact, dark, data-first interface for fast scanning.", colors: ["#181b22", "#2f80ed", "#27ae60"] },
-      { id: "terminal", name: "Terminal", headline: "Market command line", desc: "Monospace, high contrast, hacker-style market board.", colors: ["#06120f", "#36e69b", "#e8d36f"] },
-      { id: "newspaper", name: "Newspaper", headline: "Financial paper", desc: "Editorial, calm, old-school market reading room.", colors: ["#fffaf0", "#8b2f25", "#194f68"] },
-      { id: "glass", name: "Glass", headline: "Frosted market lab", desc: "Translucent panels with a cool modern dashboard feel.", colors: ["#101820", "#66d9ff", "#ffbf69"] },
-      { id: "pastel", name: "Pastel", headline: "Soft portfolio board", desc: "Light, friendly, colorful watchlist for everyday checking.", colors: ["#ffffff", "#6b78d6", "#d06c8d"] },
-      { id: "aurora", name: "Aurora", headline: "Northern lights ticker", desc: "Deep teal market glow with soft electric accents.", colors: ["#08151f", "#5ce1c8", "#ff8fb3"] },
-      { id: "ink", name: "Ink", headline: "Sharp black ink", desc: "Quiet white canvas, hard contrast, print-like precision.", colors: ["#ffffff", "#111111", "#bd3326"] },
-      { id: "candy", name: "Candy", headline: "Pop portfolio", desc: "Bright consumer-app energy with playful color tension.", colors: ["#fff7fb", "#ff5d8f", "#00a8cc"] },
-      { id: "brutal", name: "Brutal", headline: "Brutalist exchange", desc: "Loud blocks, heavy borders, unapologetic market controls.", colors: ["#f0f000", "#0057ff", "#ff2a1f"] },
-      { id: "mono", name: "Mono", headline: "Analyst grayscale", desc: "Restrained monochrome workspace with precise accents.", colors: ["#fdfdfd", "#495057", "#0b7285"] },
-      { id: "luxury", name: "Luxury", headline: "Private bank desk", desc: "Dark warm surfaces, gold signals, executive calm.", colors: ["#191816", "#d6ad60", "#8ab4f8"] },
-      { id: "cyber", name: "Cyber", headline: "Neon price grid", desc: "Electric contrast for a future-facing trading screen.", colors: ["#09081f", "#00e5ff", "#ff2bd6"] },
-      { id: "zen", name: "Zen", headline: "Quiet capital", desc: "Soft green workspace built for slower portfolio reviews.", colors: ["#fbfcf8", "#4b7f52", "#9c6b3f"] },
-      { id: "bloom", name: "Bloom", headline: "Warm growth board", desc: "Fresh editorial warmth for approachable market tracking.", colors: ["#fff8f2", "#db5a42", "#7c61c9"] },
-      { id: "cockpit", name: "Cockpit", headline: "Instrument cockpit", desc: "Dark utility panels with amber command emphasis.", colors: ["#121722", "#ffb000", "#45a3ff"] }
+      { id: "trader", group: "Fancy", name: "Trader", headline: "Focused trading desk", desc: "Dense, dark, data-first interface for fast scanning.", colors: ["#181b22", "#2f80ed", "#27ae60"] },
+      { id: "terminal", group: "Fancy", name: "Terminal", headline: "Market command line", desc: "Monospace, high contrast, scan-line market board.", colors: ["#06120f", "#36e69b", "#e8d36f"] },
+      { id: "newspaper", group: "Minimal", name: "Newspaper", headline: "Financial paper", desc: "Editorial, calm, old-school market reading room.", colors: ["#fffaf0", "#8b2f25", "#194f68"] },
+      { id: "glass", group: "Fancy", name: "Glass", headline: "Frosted market lab", desc: "Translucent panels with layered light and cool depth.", colors: ["#101820", "#66d9ff", "#ffbf69"] },
+      { id: "pastel", group: "Minimal", name: "Pastel", headline: "Soft portfolio board", desc: "Light, friendly, colorful watchlist for everyday checking.", colors: ["#ffffff", "#6b78d6", "#d06c8d"] },
+      { id: "aurora", group: "Fancy", name: "Aurora", headline: "Northern lights ticker", desc: "Deep teal market glow with soft electric accents.", colors: ["#08151f", "#5ce1c8", "#ff8fb3"] },
+      { id: "ink", group: "Minimal", name: "Ink", headline: "Sharp black ink", desc: "Quiet white canvas, hard contrast, print-like precision.", colors: ["#ffffff", "#111111", "#bd3326"] },
+      { id: "candy", group: "Fancy", name: "Candy", headline: "Pop portfolio", desc: "Bright consumer-app energy with playful color tension.", colors: ["#fff7fb", "#ff5d8f", "#00a8cc"] },
+      { id: "brutal", group: "Fancy", name: "Brutal", headline: "Brutalist exchange", desc: "Loud blocks, heavy borders, unapologetic market controls.", colors: ["#f0f000", "#0057ff", "#ff2a1f"] },
+      { id: "mono", group: "Minimal", name: "Mono", headline: "Analyst grayscale", desc: "Restrained monochrome workspace with precise accents.", colors: ["#fdfdfd", "#495057", "#0b7285"] },
+      { id: "luxury", group: "Minimal", name: "Luxury", headline: "Private bank desk", desc: "Dark warm surfaces, gold signals, executive calm.", colors: ["#191816", "#d6ad60", "#8ab4f8"] },
+      { id: "cyber", group: "Fancy", name: "Cyber", headline: "Neon price grid", desc: "Electric contrast for a future-facing trading screen.", colors: ["#09081f", "#00e5ff", "#ff2bd6"] },
+      { id: "zen", group: "Minimal", name: "Zen", headline: "Quiet capital", desc: "Soft green workspace built for slower portfolio reviews.", colors: ["#fbfcf8", "#4b7f52", "#9c6b3f"] },
+      { id: "bloom", group: "Minimal", name: "Bloom", headline: "Warm growth board", desc: "Fresh editorial warmth for approachable market tracking.", colors: ["#fff8f2", "#db5a42", "#7c61c9"] },
+      { id: "cockpit", group: "Fancy", name: "Cockpit", headline: "Instrument cockpit", desc: "Dark utility panels with amber command emphasis.", colors: ["#121722", "#ffb000", "#45a3ff"] }
     ];
 
     const ranges = [
@@ -804,11 +1000,17 @@
     }
 
     function renderThemes() {
-      $("themeList").innerHTML = themes.map((theme) => `
-        <button class="theme-button ${theme.id === state.theme ? "active" : ""}" data-theme-id="${theme.id}" type="button">
-          <span>${theme.name}</span>
-          <span class="swatches">${theme.colors.map((color) => `<i class="swatch" style="--c:${color}"></i>`).join("")}</span>
-        </button>
+      const groups = ["Minimal", "Fancy"];
+      $("themeList").innerHTML = groups.map((group) => `
+        <div class="theme-section">
+          <div class="theme-section-title">${group}</div>
+          ${themes.filter((theme) => theme.group === group).map((theme) => `
+            <button class="theme-button ${theme.id === state.theme ? "active" : ""}" data-theme-id="${theme.id}" type="button">
+              <span>${theme.name}</span>
+              <span class="swatches">${theme.colors.map((color) => `<i class="swatch" style="--c:${color}"></i>`).join("")}</span>
+            </button>
+          `).join("")}
+        </div>
       `).join("");
     }
 
@@ -853,7 +1055,26 @@
       $("themeMetric").textContent = theme.name;
       $("themeHeadline").textContent = theme.headline;
       $("themeDescription").textContent = theme.desc;
+      renderTape();
       drawChart(selected.values, selected.change);
+    }
+
+    function renderTape() {
+      const tapeSymbols = [...state.symbols, "AMD", "META", "AMZN", "GOOGL", "NFLX", "SHOP"];
+      const uniqueSymbols = [...new Set(tapeSymbols)].slice(0, 10);
+      const chips = uniqueSymbols.map((symbol) => {
+        const item = stats(symbol);
+        const trend = item.change >= 0 ? "up" : "down";
+        const sign = item.change >= 0 ? "+" : "";
+        return `
+          <span class="tape-chip">
+            <span>${symbol}</span>
+            <span class="price">${money(item.last)}</span>
+            <span class="${trend}">${sign}${item.change.toFixed(2)}%</span>
+          </span>
+        `;
+      }).join("");
+      $("marketTape").innerHTML = chips + chips;
     }
 
     function drawChart(values, change) {
