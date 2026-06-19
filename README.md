@@ -1,8 +1,10 @@
-# Stock Five
+# Stock Helper RR
 
-Windows-friendly local stock watchlist prototype with a tiny Python server and 15 visual styles.
+Windows-friendly local trackers with tiny Python servers.
 
-Open `outputs/open-stock-five.bat` on Windows. It starts the server and opens:
+## Stock tracker
+
+Open `outputs/open-stock-five.bat` on Windows. It starts the stock server and opens:
 
 `http://127.0.0.1:8765/`
 
@@ -12,9 +14,29 @@ You can also run it manually:
 py server.py
 ```
 
-Features:
+Stock features:
 
 - Add and remove stock symbols
 - Switch ranges: 1D, 1W, 1M, 3M, 1Y
 - 15 themes: Trader, Terminal, Newspaper, Glass, Pastel, Aurora, Ink, Candy, Brutal, Mono, Luxury, Cyber, Zen, Bloom, Cockpit
 - Offline deterministic demo data, no API key required
+
+## World Cup tracker
+
+Open `outputs/open-worldcup-tracker.bat` on Windows. It starts the World Cup server and opens:
+
+`http://127.0.0.1:8766/`
+
+You can also run it manually:
+
+```bash
+py server_worldcup.py
+```
+
+World Cup features:
+
+- 48-team list
+- Group standings
+- Match schedule with local kick-off times
+- Venue and broadcast labels when provided
+- Search, group filter, status filter and refresh

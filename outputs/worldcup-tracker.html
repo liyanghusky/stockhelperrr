@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>World Cup Tracker</title>
+  <style>
+    :root {
+      --bg: #07101f;
+      --panel: rgba(255, 255, 255, .09);
+      --panel-strong: rgba(255, 255, 255, .14);
+      --text: #f7fbff;
+      --muted: #a9b8c8;
+      --line: rgba(255, 255, 255, .18);
+      --gold: #f3c969;
+      --cyan: #59d8ff;
+      --green: #4de08f;
+      --red: #ff6f7f;
+      --shadow: 0 22px 70px rgba(0, 0, 0, .34);
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 18% 10%, rgba(89, 216, 255, .16), transparent 26%),
+        radial-gradient(circle at 82% 18%, rgba(243, 201, 105, .14), transparent 28%),
+        linear-gradient(135deg, #07101f, #0e1830 54%, #111827);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, .04) 0 1px, transparent 1px 72px),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, .035) 0 1px, transparent 1px 72px);
+      mask-image: linear-gradient(to bottom, #000, transparent 86%);
+    }
+
+    button, input, select { font: inherit; }
+
+    .app {
+      width: min(1480px, 100%);
+      margin: 0 auto;
+      padding: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero {
+      min-height: 210px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: end;
+      padding: 22px 0 18px;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 760px;
+      font-size: clamp(44px, 7vw, 96px);
+      line-height: .9;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      margin: 16px 0 0;
+      max-width: 680px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .clock-card {
+      min-width: 270px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .clock-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
+
+    .clock-card strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 25px;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(220px, 340px) 190px 190px auto;
+      gap: 12px;
+      margin: 12px 0 18px;
+    }
+
+    .control {
+      height: 44px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .10);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 0 12px;
+      outline: none;
+    }
+
+    select.control option {
+      color: #111827;
+      background: #fff;
+    }
+
+    .refresh {
+      height: 44px;
+      border: 1px solid color-mix(in srgb, var(--cyan), white 20%);
+      background: var(--cyan);
+      color: #07101f;
+      border-radius: 8px;
+      padding: 0 16px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 92px;
+      box-shadow: var(--shadow);
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
+
+    .stat strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 32px;
+      line-height: 1;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(420px, .95fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      background: rgba(8, 18, 34, .76);
+      backdrop-filter: blur(20px);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .panel-head small {
+      color: var(--muted);
+    }
+
+    .match-list {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      max-height: 760px;
+      overflow: auto;
+    }
+
+    .match {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .075);
+      border-radius: 8px;
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .match-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      padding: 0 10px;
+      color: var(--text);
+      background: rgba(255, 255, 255, .08);
+      font-weight: 800;
+    }
+
+    .teams {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+    }
+
+    .team {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .team.away { justify-content: flex-end; text-align: right; }
+
+    .logo {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+      flex: 0 0 auto;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,.28));
+    }
+
+    .team-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 900;
+    }
+
+    .score {
+      min-width: 92px;
+      text-align: center;
+      font-size: 26px;
+      font-weight: 950;
+      color: var(--gold);
+    }
+
+    .venue {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      padding: 14px 14px 0;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .08);
+      color: var(--text);
+      border-radius: 8px;
+      height: 36px;
+      padding: 0 12px;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .tab.active {
+      background: var(--gold);
+      color: #121212;
+      border-color: var(--gold);
+    }
+
+    .standings {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+      max-height: 760px;
+      overflow: auto;
+    }
+
+    .group {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, .055);
+    }
+
+    .group-title {
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      font-weight: 900;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 10px 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, .08);
+      text-align: right;
+    }
+
+    th:first-child, td:first-child { text-align: left; }
+    tr:last-child td { border-bottom: 0; }
+    th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+
+    .table-team {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      font-weight: 800;
+    }
+
+    .table-team img {
+      width: 23px;
+      height: 23px;
+      object-fit: contain;
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      padding: 14px;
+    }
+
+    .team-card {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .075);
+      border-radius: 8px;
+      min-height: 82px;
+      padding: 10px;
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      gap: 8px;
+      text-align: center;
+    }
+
+    .team-card img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
+
+    .team-card strong {
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .empty, .loading {
+      padding: 30px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 1080px) {
+      .hero, .layout, .toolbar { grid-template-columns: 1fr; }
+      .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .clock-card { min-width: 0; }
+    }
+
+    @media (max-width: 620px) {
+      .app { padding: 16px; }
+      .summary, .team-grid { grid-template-columns: 1fr; }
+      .teams { grid-template-columns: 1fr; }
+      .team.away { justify-content: flex-start; text-align: left; }
+      .score { text-align: left; }
+      .layout { gap: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <div>
+        <div class="eyebrow">World Cup 2026 Live Localhost</div>
+        <h1>Matchday control room</h1>
+        <p>Track teams, groups, kick-off times, venues, broadcast labels, scores and standings from a local Windows server on a separate port.</p>
+      </div>
+      <aside class="clock-card">
+        <span>Your local time</span>
+        <strong id="clock">--</strong>
+        <p id="sourceStamp">Loading data...</p>
+      </aside>
+    </section>
+
+    <section class="toolbar">
+      <input class="control" id="search" placeholder="Search team, venue, group">
+      <select class="control" id="groupFilter">
+        <option value="all">All groups</option>
+      </select>
+      <select class="control" id="statusFilter">
+        <option value="all">All matches</option>
+        <option value="pre">Upcoming</option>
+        <option value="in">Live</option>
+        <option value="post">Finished</option>
+      </select>
+      <button class="refresh" id="refresh">Refresh tracker</button>
+    </section>
+
+    <section class="summary">
+      <div class="stat"><span>Teams</span><strong id="teamCount">--</strong></div>
+      <div class="stat"><span>Groups</span><strong id="groupCount">--</strong></div>
+      <div class="stat"><span>Loaded Matches</span><strong id="matchCount">--</strong></div>
+      <div class="stat"><span>Next Kickoff</span><strong id="nextKickoff">--</strong></div>
+    </section>
+
+    <section class="layout">
+      <article class="panel">
+        <div class="panel-head">
+          <h2>Schedule</h2>
+          <small id="matchSub">Times shown locally</small>
+        </div>
+        <div class="match-list" id="matches">
+          <div class="loading">Loading World Cup matches...</div>
+        </div>
+      </article>
+
+      <aside class="panel">
+        <div class="panel-head">
+          <h2>Groups & Teams</h2>
+          <small>48-team field</small>
+        </div>
+        <div class="tabs">
+          <button class="tab active" data-view="standings">Standings</button>
+          <button class="tab" data-view="teams">Teams</button>
+        </div>
+        <div id="standings" class="standings"></div>
+        <div id="teams" class="team-grid" hidden></div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    let data = { teams: [], groups: [], matches: [], errors: [], source: {} };
+    let view = "standings";
+    const $ = (id) => document.getElementById(id);
+    const formatDate = (iso) => new Intl.DateTimeFormat(undefined, {
+      weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit"
+    }).format(new Date(iso));
+    const compactTime = (iso) => new Intl.DateTimeFormat(undefined, {
+      month: "short", day: "numeric", hour: "numeric", minute: "2-digit"
+    }).format(new Date(iso));
+
+    function updateClock() {
+      $("clock").textContent = new Intl.DateTimeFormat(undefined, {
+        weekday: "short", hour: "2-digit", minute: "2-digit", second: "2-digit"
+      }).format(new Date());
+    }
+
+    function teamLogo(team) {
+      if (!team.logo) return "";
+      return `<img class="logo" src="${team.logo}" alt="">`;
+    }
+
+    function filteredMatches() {
+      const term = $("search").value.trim().toLowerCase();
+      const group = $("groupFilter").value;
+      const status = $("statusFilter").value;
+      return data.matches.filter((match) => {
+        const haystack = [
+          match.name, match.group, match.venue, match.city,
+          match.home?.name, match.away?.name, match.home?.abbr, match.away?.abbr
+        ].join(" ").toLowerCase();
+        return (!term || haystack.includes(term)) &&
+          (group === "all" || match.group === group) &&
+          (status === "all" || match.state === status);
+      });
+    }
+
+    function renderMatches() {
+      const matches = filteredMatches();
+      $("matchCount").textContent = data.matches.length || "--";
+      $("matchSub").textContent = matches.length + " visible";
+      if (!matches.length) {
+        $("matches").innerHTML = `<div class="empty">No matches match the current filters.</div>`;
+        return;
+      }
+      $("matches").innerHTML = matches.map((match) => {
+        const score = match.state === "pre" ? "vs" : `${match.away.score} - ${match.home.score}`;
+        const tv = (match.broadcasts || []).slice(0, 3).join(" / ") || "TBA";
+        return `
+          <article class="match">
+            <div class="match-top">
+              <span>${formatDate(match.date)}</span>
+              <span class="badge">${match.group || "World Cup"}</span>
+            </div>
+            <div class="teams">
+              <div class="team">${teamLogo(match.away)}<span class="team-name">${match.away.name || "TBD"}</span></div>
+              <div class="score">${score}</div>
+              <div class="team away"><span class="team-name">${match.home.name || "TBD"}</span>${teamLogo(match.home)}</div>
+            </div>
+            <div class="venue">${match.status || "Scheduled"} · ${match.venue || "Venue TBA"}${match.city ? ", " + match.city : ""} · ${tv}</div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderGroups() {
+      const selected = $("groupFilter").value;
+      const groups = selected === "all" ? data.groups : data.groups.filter((group) => group.name === selected);
+      $("standings").innerHTML = groups.map((group) => `
+        <section class="group">
+          <div class="group-title">
+            <span>${group.name}</span>
+            <span>${group.teams.length} teams</span>
+          </div>
+          <table>
+            <thead><tr><th>Team</th><th>GP</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr></thead>
+            <tbody>
+              ${group.teams.map((row) => `
+                <tr>
+                  <td><span class="table-team"><img src="${row.team.logo || ""}" alt="">${row.team.name}</span></td>
+                  <td>${row.played}</td><td>${row.wins}</td><td>${row.draws}</td><td>${row.losses}</td>
+                  <td>${row.goalDiff}</td><td><strong>${row.points}</strong></td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </section>
+      `).join("") || `<div class="empty">No standings loaded.</div>`;
+    }
+
+    function renderTeams() {
+      const term = $("search").value.trim().toLowerCase();
+      const teams = data.teams.filter((team) => !term || [team.name, team.abbr].join(" ").toLowerCase().includes(term));
+      $("teams").innerHTML = teams.map((team) => `
+        <div class="team-card">
+          ${team.logo ? `<img src="${team.logo}" alt="">` : ""}
+          <strong>${team.name}</strong>
+        </div>
+      `).join("") || `<div class="empty">No teams match the current search.</div>`;
+    }
+
+    function renderFilters() {
+      const current = $("groupFilter").value;
+      const groups = [...new Set(data.groups.map((group) => group.name).filter(Boolean))];
+      $("groupFilter").innerHTML = `<option value="all">All groups</option>` +
+        groups.map((group) => `<option value="${group}">${group}</option>`).join("");
+      if (groups.includes(current)) $("groupFilter").value = current;
+    }
+
+    function renderSummary() {
+      $("teamCount").textContent = data.teams.length || "--";
+      $("groupCount").textContent = data.groups.length || "--";
+      const next = data.matches.find((match) => match.state === "pre" && new Date(match.date) > new Date());
+      $("nextKickoff").textContent = next ? compactTime(next.date) : "TBD";
+      if (data.source?.generatedAt) {
+        $("sourceStamp").textContent = "Data refreshed " + compactTime(data.source.generatedAt);
+      }
+    }
+
+    function render() {
+      renderFilters();
+      renderSummary();
+      renderMatches();
+      renderGroups();
+      renderTeams();
+    }
+
+    async function loadData() {
+      $("refresh").textContent = "Refreshing...";
+      $("refresh").disabled = true;
+      try {
+        const response = await fetch("/api/worldcup", { cache: "no-store" });
+        if (!response.ok) throw new Error("HTTP " + response.status);
+        data = await response.json();
+        render();
+      } catch (error) {
+        $("matches").innerHTML = `<div class="empty">Could not load World Cup data: ${error.message}</div>`;
+      } finally {
+        $("refresh").textContent = "Refresh tracker";
+        $("refresh").disabled = false;
+      }
+    }
+
+    document.querySelectorAll(".tab").forEach((button) => {
+      button.addEventListener("click", () => {
+        view = button.dataset.view;
+        document.querySelectorAll(".tab").forEach((item) => item.classList.toggle("active", item === button));
+        $("standings").hidden = view !== "standings";
+        $("teams").hidden = view !== "teams";
+      });
+    });
+
+    ["search", "groupFilter", "statusFilter"].forEach((id) => {
+      $(id).addEventListener("input", () => {
+        renderMatches();
+        renderGroups();
+        renderTeams();
+      });
+    });
+    $("refresh").addEventListener("click", loadData);
+    setInterval(updateClock, 1000);
+    updateClock();
+    loadData();
+  </script>
+</body>
+</html>
