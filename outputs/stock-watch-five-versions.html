@@ -106,6 +106,155 @@
       --shadow: 0 16px 34px rgba(76, 65, 95, .13);
     }
 
+    body[data-theme="aurora"] {
+      color-scheme: dark;
+      --bg: #08151f;
+      --panel: #102433;
+      --panel-2: #173548;
+      --text: #f3fbff;
+      --muted: #9db8c7;
+      --line: #285166;
+      --accent: #5ce1c8;
+      --accent-2: #ff8fb3;
+      --good: #83f28f;
+      --bad: #ff7777;
+      --shadow: 0 18px 46px rgba(0, 20, 32, .38);
+    }
+
+    body[data-theme="ink"] {
+      --bg: #f7f7f3;
+      --panel: #ffffff;
+      --panel-2: #eeeeea;
+      --text: #161616;
+      --muted: #66665f;
+      --line: #d9d8d0;
+      --accent: #111111;
+      --accent-2: #bd3326;
+      --good: #176d43;
+      --bad: #b92f2b;
+      --shadow: 0 12px 28px rgba(16, 16, 16, .08);
+      --font: Arial, "Segoe UI", sans-serif;
+    }
+
+    body[data-theme="candy"] {
+      --bg: #fff7fb;
+      --panel: #ffffff;
+      --panel-2: #f4fbff;
+      --text: #252039;
+      --muted: #746b8c;
+      --line: #eadff0;
+      --accent: #ff5d8f;
+      --accent-2: #00a8cc;
+      --good: #0f9b7a;
+      --bad: #e54568;
+      --shadow: 0 15px 32px rgba(172, 83, 130, .14);
+    }
+
+    body[data-theme="brutal"] {
+      --bg: #f0f000;
+      --panel: #ffffff;
+      --panel-2: #f7f7f7;
+      --text: #050505;
+      --muted: #3a3a3a;
+      --line: #050505;
+      --accent: #0057ff;
+      --accent-2: #ff2a1f;
+      --good: #008a22;
+      --bad: #d60000;
+      --shadow: 8px 8px 0 #050505;
+      --font: "Arial Black", Impact, sans-serif;
+    }
+
+    body[data-theme="mono"] {
+      --bg: #e9ecef;
+      --panel: #fdfdfd;
+      --panel-2: #f1f3f5;
+      --text: #1f2328;
+      --muted: #6a737d;
+      --line: #cfd6dd;
+      --accent: #495057;
+      --accent-2: #0b7285;
+      --good: #2b8a3e;
+      --bad: #c92a2a;
+      --shadow: 0 12px 28px rgba(31, 35, 40, .1);
+    }
+
+    body[data-theme="luxury"] {
+      color-scheme: dark;
+      --bg: #10100f;
+      --panel: #191816;
+      --panel-2: #24211d;
+      --text: #f9f1df;
+      --muted: #b6a98f;
+      --line: #413a2d;
+      --accent: #d6ad60;
+      --accent-2: #8ab4f8;
+      --good: #75c88a;
+      --bad: #ef8a7a;
+      --shadow: 0 20px 52px rgba(0, 0, 0, .36);
+      --font: "Trebuchet MS", "Segoe UI", sans-serif;
+    }
+
+    body[data-theme="cyber"] {
+      color-scheme: dark;
+      --bg: #09081f;
+      --panel: #121036;
+      --panel-2: #1c1850;
+      --text: #f7f4ff;
+      --muted: #aaa1d6;
+      --line: #322c7a;
+      --accent: #00e5ff;
+      --accent-2: #ff2bd6;
+      --good: #25f58f;
+      --bad: #ff4b7d;
+      --shadow: 0 0 0 1px rgba(0, 229, 255, .15), 0 18px 48px rgba(6, 0, 38, .45);
+      --font: "Cascadia Mono", Consolas, monospace;
+    }
+
+    body[data-theme="zen"] {
+      --bg: #eef3ee;
+      --panel: #fbfcf8;
+      --panel-2: #e5ece3;
+      --text: #26322b;
+      --muted: #6b776d;
+      --line: #cdd8cc;
+      --accent: #4b7f52;
+      --accent-2: #9c6b3f;
+      --good: #2f855a;
+      --bad: #b84a3d;
+      --shadow: 0 14px 30px rgba(60, 82, 62, .12);
+    }
+
+    body[data-theme="bloom"] {
+      --bg: #fff8f2;
+      --panel: #ffffff;
+      --panel-2: #fff0e5;
+      --text: #2e2430;
+      --muted: #806f78;
+      --line: #efd8cf;
+      --accent: #db5a42;
+      --accent-2: #7c61c9;
+      --good: #238267;
+      --bad: #c43b52;
+      --shadow: 0 16px 34px rgba(164, 86, 58, .14);
+    }
+
+    body[data-theme="cockpit"] {
+      color-scheme: dark;
+      --bg: #0b0d12;
+      --panel: #121722;
+      --panel-2: #1a2230;
+      --text: #f2f6fb;
+      --muted: #93a0af;
+      --line: #2b3545;
+      --accent: #ffb000;
+      --accent-2: #45a3ff;
+      --good: #37d67a;
+      --bad: #ff5964;
+      --shadow: 0 16px 42px rgba(0, 0, 0, .3);
+      --font: "Segoe UI", Arial, sans-serif;
+    }
+
     .shell {
       width: min(1440px, 100%);
       margin: 0 auto;
@@ -344,6 +493,16 @@
       backdrop-filter: blur(22px);
     }
 
+    body[data-theme="brutal"] .chart-card,
+    body[data-theme="brutal"] .details-card,
+    body[data-theme="brutal"] .sidebar,
+    body[data-theme="brutal"] .theme-button,
+    body[data-theme="brutal"] .range-button,
+    body[data-theme="brutal"] .metric,
+    body[data-theme="brutal"] input {
+      border-width: 2px;
+    }
+
     .chart-head {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
@@ -487,7 +646,7 @@
         <div class="mark">S5</div>
         <div>
           <h1>Stock Five</h1>
-          <p class="sub">Windows local watchlist</p>
+          <p class="sub">Windows localhost watchlist</p>
         </div>
       </div>
 
@@ -514,7 +673,7 @@
           <button class="primary" type="submit" title="添加股票" aria-label="添加股票">+</button>
         </form>
         <div class="range-group" id="rangeGroup" aria-label="时间范围"></div>
-        <div class="status" id="status">Local demo data. No account needed.</div>
+        <div class="status" id="status">Served from localhost. Demo data, no account needed.</div>
       </section>
 
       <section class="dashboard">
@@ -564,7 +723,17 @@
       { id: "terminal", name: "Terminal", headline: "Market command line", desc: "Monospace, high contrast, hacker-style market board.", colors: ["#06120f", "#36e69b", "#e8d36f"] },
       { id: "newspaper", name: "Newspaper", headline: "Financial paper", desc: "Editorial, calm, old-school market reading room.", colors: ["#fffaf0", "#8b2f25", "#194f68"] },
       { id: "glass", name: "Glass", headline: "Frosted market lab", desc: "Translucent panels with a cool modern dashboard feel.", colors: ["#101820", "#66d9ff", "#ffbf69"] },
-      { id: "pastel", name: "Pastel", headline: "Soft portfolio board", desc: "Light, friendly, colorful watchlist for everyday checking.", colors: ["#ffffff", "#6b78d6", "#d06c8d"] }
+      { id: "pastel", name: "Pastel", headline: "Soft portfolio board", desc: "Light, friendly, colorful watchlist for everyday checking.", colors: ["#ffffff", "#6b78d6", "#d06c8d"] },
+      { id: "aurora", name: "Aurora", headline: "Northern lights ticker", desc: "Deep teal market glow with soft electric accents.", colors: ["#08151f", "#5ce1c8", "#ff8fb3"] },
+      { id: "ink", name: "Ink", headline: "Sharp black ink", desc: "Quiet white canvas, hard contrast, print-like precision.", colors: ["#ffffff", "#111111", "#bd3326"] },
+      { id: "candy", name: "Candy", headline: "Pop portfolio", desc: "Bright consumer-app energy with playful color tension.", colors: ["#fff7fb", "#ff5d8f", "#00a8cc"] },
+      { id: "brutal", name: "Brutal", headline: "Brutalist exchange", desc: "Loud blocks, heavy borders, unapologetic market controls.", colors: ["#f0f000", "#0057ff", "#ff2a1f"] },
+      { id: "mono", name: "Mono", headline: "Analyst grayscale", desc: "Restrained monochrome workspace with precise accents.", colors: ["#fdfdfd", "#495057", "#0b7285"] },
+      { id: "luxury", name: "Luxury", headline: "Private bank desk", desc: "Dark warm surfaces, gold signals, executive calm.", colors: ["#191816", "#d6ad60", "#8ab4f8"] },
+      { id: "cyber", name: "Cyber", headline: "Neon price grid", desc: "Electric contrast for a future-facing trading screen.", colors: ["#09081f", "#00e5ff", "#ff2bd6"] },
+      { id: "zen", name: "Zen", headline: "Quiet capital", desc: "Soft green workspace built for slower portfolio reviews.", colors: ["#fbfcf8", "#4b7f52", "#9c6b3f"] },
+      { id: "bloom", name: "Bloom", headline: "Warm growth board", desc: "Fresh editorial warmth for approachable market tracking.", colors: ["#fff8f2", "#db5a42", "#7c61c9"] },
+      { id: "cockpit", name: "Cockpit", headline: "Instrument cockpit", desc: "Dark utility panels with amber command emphasis.", colors: ["#121722", "#ffb000", "#45a3ff"] }
     ];
 
     const ranges = [
