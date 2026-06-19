@@ -342,7 +342,7 @@
       margin: 0 auto;
       min-height: 100vh;
       display: grid;
-      grid-template-columns: 280px minmax(0, 1fr);
+      grid-template-columns: 320px minmax(0, 1fr);
       position: relative;
       z-index: 1;
     }
@@ -417,12 +417,14 @@
     }
 
     .theme-button {
-      display: flex;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
       align-items: center;
-      justify-content: space-between;
-      min-height: 42px;
-      padding: 0 12px;
+      min-height: 72px;
+      padding: 12px;
       text-align: left;
+      overflow: hidden;
     }
 
     .theme-button span:first-child {
@@ -430,6 +432,43 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+
+    .theme-copy {
+      min-width: 0;
+      display: grid;
+      gap: 5px;
+    }
+
+    .theme-name {
+      font-size: 14px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .theme-desc {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.25;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .theme-poster {
+      width: 58px;
+      height: 44px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--c1);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08);
+    }
+
+    .theme-poster i:nth-child(1) { background: var(--c1); }
+    .theme-poster i:nth-child(2) { background: var(--c2); }
+    .theme-poster i:nth-child(3) { background: var(--c3); grid-column: span 2; }
 
     .theme-button:hover,
     .range-button:hover,
@@ -498,7 +537,7 @@
     .main {
       padding: 22px;
       display: grid;
-      grid-template-rows: auto auto auto 1fr;
+      grid-template-rows: auto auto auto auto 1fr;
       gap: 16px;
       min-width: 0;
     }
@@ -527,6 +566,220 @@
       grid-template-columns: minmax(220px, 320px) auto minmax(0, 1fr);
       gap: 12px;
       align-items: center;
+    }
+
+    .portfolio-stage {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(300px, .75fr);
+      gap: 16px;
+    }
+
+    .stage-main,
+    .stage-side {
+      border: 1px solid var(--line);
+      background: var(--chrome);
+      backdrop-filter: blur(18px);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .stage-main {
+      min-height: 198px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      position: relative;
+    }
+
+    .stage-main::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(115deg, color-mix(in srgb, var(--accent), transparent 78%), transparent 34%),
+        repeating-linear-gradient(90deg, color-mix(in srgb, var(--line), transparent 55%) 0 1px, transparent 1px 54px);
+      opacity: .85;
+    }
+
+    .stage-copy,
+    .stage-visual {
+      position: relative;
+      z-index: 1;
+    }
+
+    .stage-copy {
+      padding: 20px;
+      display: grid;
+      align-content: space-between;
+      gap: 18px;
+    }
+
+    .stage-label,
+    .rail-label {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font-weight: 900;
+    }
+
+    .portfolio-value {
+      margin-top: 10px;
+      font-size: clamp(36px, 5.5vw, 66px);
+      line-height: .88;
+      font-weight: 950;
+      letter-spacing: 0;
+    }
+
+    .portfolio-change {
+      margin-top: 10px;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .composition {
+      display: grid;
+      gap: 8px;
+    }
+
+    .composition-row {
+      display: grid;
+      grid-template-columns: 58px minmax(0, 1fr) 52px;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .composition-bar {
+      height: 9px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--line), transparent 40%);
+      overflow: hidden;
+    }
+
+    .composition-fill {
+      height: 100%;
+      width: var(--w);
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      border-radius: inherit;
+    }
+
+    .stage-visual {
+      padding: 16px;
+      border-left: 1px solid var(--line);
+      display: grid;
+      align-content: stretch;
+    }
+
+    .signature {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--panel-2);
+      min-height: 100%;
+      display: grid;
+      grid-template-rows: 1fr auto;
+    }
+
+    .signature-art {
+      position: relative;
+      min-height: 118px;
+      background:
+        linear-gradient(135deg, var(--sig1), transparent 42%),
+        linear-gradient(235deg, var(--sig2), transparent 48%),
+        linear-gradient(0deg, var(--sig3), transparent 62%);
+    }
+
+    .signature-art::before,
+    .signature-art::after {
+      content: "";
+      position: absolute;
+      inset: 16px;
+      border: 1px solid color-mix(in srgb, var(--text), transparent 62%);
+      transform: skewX(-10deg);
+    }
+
+    .signature-art::after {
+      inset: 34px 28px;
+      border-color: color-mix(in srgb, var(--accent), transparent 20%);
+      transform: skewX(16deg);
+    }
+
+    .signature-caption {
+      padding: 12px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .signature-caption strong {
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .stage-side {
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .thesis {
+      font-size: 22px;
+      line-height: 1.05;
+      font-weight: 950;
+      letter-spacing: 0;
+    }
+
+    .rail-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .rail-tile {
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      border-radius: 8px;
+      min-height: 74px;
+      padding: 10px;
+      display: grid;
+      align-content: space-between;
+    }
+
+    .rail-tile span {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .rail-tile strong {
+      font-size: 18px;
+      overflow-wrap: anywhere;
+    }
+
+    .pulse-strip {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      align-items: end;
+      gap: 4px;
+      height: 62px;
+      padding-top: 8px;
+    }
+
+    .pulse-strip i {
+      display: block;
+      height: var(--h);
+      min-height: 9px;
+      border-radius: 999px 999px 3px 3px;
+      background: linear-gradient(180deg, var(--accent), var(--accent-2));
     }
 
     .market-tape {
@@ -642,6 +895,27 @@
       box-shadow: var(--shadow);
       min-width: 0;
       overflow: hidden;
+    }
+
+    .chart-card {
+      position: relative;
+    }
+
+    .chart-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent), transparent 91%), transparent),
+        repeating-linear-gradient(0deg, color-mix(in srgb, var(--line), transparent 66%) 0 1px, transparent 1px 46px);
+      opacity: .58;
+    }
+
+    .chart-head,
+    .canvas-wrap {
+      position: relative;
+      z-index: 1;
     }
 
     body[data-theme="glass"] .chart-card,
@@ -791,6 +1065,28 @@
       line-height: 1.55;
     }
 
+    .insight-rail {
+      padding: 0 14px 14px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .insight {
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .insight strong {
+      color: var(--text);
+    }
+
     .mini-actions {
       display: flex;
       gap: 8px;
@@ -814,6 +1110,9 @@
       .theme-list { grid-template-columns: repeat(5, minmax(0, 1fr)); }
       .theme-button { min-height: 50px; align-items: flex-start; flex-direction: column; padding: 8px; }
       .watch-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .portfolio-stage { grid-template-columns: 1fr; }
+      .stage-main { grid-template-columns: 1fr; }
+      .stage-visual { border-left: none; border-top: 1px solid var(--line); }
       .dashboard { grid-template-columns: 1fr; }
       .controls { grid-template-columns: 1fr; }
       .status { text-align: left; }
@@ -828,6 +1127,8 @@
       .big-price, .big-change { text-align: left; }
       .canvas-wrap { min-height: 280px; height: 360px; }
       .metric-grid { grid-template-columns: 1fr; }
+      .rail-grid { grid-template-columns: 1fr; }
+      .composition-row { grid-template-columns: 48px minmax(0, 1fr) 46px; }
     }
   </style>
 </head>
@@ -858,6 +1159,44 @@
         </div>
         <div class="clock" id="clock">--</div>
       </header>
+
+      <section class="portfolio-stage">
+        <article class="stage-main">
+          <div class="stage-copy">
+            <div>
+              <div class="stage-label">Portfolio surface</div>
+              <div class="portfolio-value" id="portfolioValue">$0.00</div>
+              <div class="portfolio-change" id="portfolioChange">0.00% session drift</div>
+            </div>
+            <div class="composition" id="compositionBars"></div>
+          </div>
+          <div class="stage-visual">
+            <div class="signature" id="signatureCard">
+              <div class="signature-art" id="signatureArt"></div>
+              <div class="signature-caption">
+                <span id="signatureCaption">Design system</span>
+                <strong id="signatureName">Trader</strong>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <aside class="stage-side">
+          <div>
+            <div class="rail-label">Style thesis</div>
+            <div class="thesis" id="styleThesis">A sharper trading surface with depth, rhythm and a clear visual signature.</div>
+          </div>
+          <div class="rail-grid">
+            <div class="rail-tile"><span>Breadth</span><strong id="breadthMetric">0/0</strong></div>
+            <div class="rail-tile"><span>Leader</span><strong id="leaderMetric">--</strong></div>
+            <div class="rail-tile"><span>Tempo</span><strong id="tempoMetric">--</strong></div>
+          </div>
+          <div>
+            <div class="rail-label">Pulse</div>
+            <div class="pulse-strip" id="pulseStrip"></div>
+          </div>
+        </aside>
+      </section>
 
       <section class="market-tape" aria-label="Market tape">
         <div class="tape-track" id="marketTape"></div>
@@ -904,6 +1243,11 @@
             <div class="metric"><span>Volume</span><strong id="volumeMetric">0M</strong></div>
             <div class="metric"><span>Range</span><strong id="rangeMetric">1M</strong></div>
             <div class="metric"><span>Theme</span><strong id="themeMetric">Trader</strong></div>
+          </div>
+          <div class="insight-rail">
+            <div class="insight"><span>Signal</span><strong id="signalInsight">--</strong></div>
+            <div class="insight"><span>Volatility</span><strong id="volatilityInsight">--</strong></div>
+            <div class="insight"><span>Watchlist mood</span><strong id="moodInsight">--</strong></div>
           </div>
           <div class="news" id="note">
             Tip: this is an offline Windows-friendly prototype. It uses deterministic demo price paths, so every added ticker gets a plausible local chart immediately.
@@ -1006,8 +1350,11 @@
           <div class="theme-section-title">${group}</div>
           ${themes.filter((theme) => theme.group === group).map((theme) => `
             <button class="theme-button ${theme.id === state.theme ? "active" : ""}" data-theme-id="${theme.id}" type="button">
-              <span>${theme.name}</span>
-              <span class="swatches">${theme.colors.map((color) => `<i class="swatch" style="--c:${color}"></i>`).join("")}</span>
+              <span class="theme-copy">
+                <span class="theme-name">${theme.name}</span>
+                <span class="theme-desc">${theme.desc}</span>
+              </span>
+              <span class="theme-poster" style="--c1:${theme.colors[0]};--c2:${theme.colors[1]};--c3:${theme.colors[2]}"><i></i><i></i><i></i></span>
             </button>
           `).join("")}
         </div>
@@ -1055,8 +1402,74 @@
       $("themeMetric").textContent = theme.name;
       $("themeHeadline").textContent = theme.headline;
       $("themeDescription").textContent = theme.desc;
+      renderPortfolio(theme, selected);
       renderTape();
       drawChart(selected.values, selected.change);
+    }
+
+    function holdingFor(symbol) {
+      return 6 + (hashSymbol(symbol) % 24);
+    }
+
+    function portfolioSnapshot() {
+      const rows = state.symbols.map((symbol) => {
+        const item = stats(symbol);
+        const shares = holdingFor(symbol);
+        const value = item.last * shares;
+        const startValue = item.first * shares;
+        return { symbol, ...item, shares, value, startValue };
+      });
+      const total = rows.reduce((sum, row) => sum + row.value, 0);
+      const startTotal = rows.reduce((sum, row) => sum + row.startValue, 0);
+      const change = startTotal ? ((total - startTotal) / startTotal) * 100 : 0;
+      const winners = rows.filter((row) => row.change >= 0).length;
+      const leader = [...rows].sort((a, b) => b.change - a.change)[0];
+      const averageVolatility = rows.reduce((sum, row) => sum + ((row.high - row.low) / row.last) * 100, 0) / Math.max(1, rows.length);
+      return { rows, total, change, winners, leader, averageVolatility };
+    }
+
+    function renderPortfolio(theme, selected) {
+      const snap = portfolioSnapshot();
+      const sign = snap.change >= 0 ? "+" : "";
+      const mood = snap.change >= 6 ? "Euphoric" : snap.change >= 1 ? "Constructive" : snap.change > -1 ? "Balanced" : "Defensive";
+      $("portfolioValue").textContent = money(snap.total);
+      $("portfolioChange").textContent = `${sign}${snap.change.toFixed(2)}% session drift`;
+      $("portfolioChange").className = "portfolio-change " + (snap.change >= 0 ? "up" : "down");
+      $("breadthMetric").textContent = `${snap.winners}/${snap.rows.length}`;
+      $("leaderMetric").textContent = snap.leader ? snap.leader.symbol : "--";
+      $("tempoMetric").textContent = snap.averageVolatility.toFixed(1) + "%";
+      $("signalInsight").textContent = selected.change >= 0 ? "Accumulation" : "Cooling";
+      $("volatilityInsight").textContent = ((selected.high - selected.low) / selected.last * 100).toFixed(1) + "%";
+      $("moodInsight").textContent = mood;
+      $("styleThesis").textContent = theme.group === "Fancy"
+        ? `${theme.name} pushes the interface toward a stronger visual identity while keeping the trading controls close.`
+        : `${theme.name} keeps the surface calm, precise and editorial so the data can breathe.`;
+      $("signatureCaption").textContent = theme.group + " system";
+      $("signatureName").textContent = theme.name;
+      $("signatureArt").style.setProperty("--sig1", theme.colors[0]);
+      $("signatureArt").style.setProperty("--sig2", theme.colors[1]);
+      $("signatureArt").style.setProperty("--sig3", theme.colors[2]);
+
+      const topRows = [...snap.rows].sort((a, b) => b.value - a.value).slice(0, 5);
+      $("compositionBars").innerHTML = topRows.map((row) => {
+        const width = snap.total ? Math.max(8, (row.value / snap.total) * 100) : 0;
+        return `
+          <div class="composition-row">
+            <span>${row.symbol}</span>
+            <span class="composition-bar"><i class="composition-fill" style="--w:${width.toFixed(1)}%"></i></span>
+            <span>${Math.round(width)}%</span>
+          </div>
+        `;
+      }).join("");
+
+      const pulseValues = selected.values.slice(-12);
+      const min = Math.min(...pulseValues);
+      const max = Math.max(...pulseValues);
+      const spread = Math.max(1, max - min);
+      $("pulseStrip").innerHTML = pulseValues.map((value) => {
+        const height = 18 + ((value - min) / spread) * 44;
+        return `<i style="--h:${height.toFixed(0)}px"></i>`;
+      }).join("");
     }
 
     function renderTape() {
