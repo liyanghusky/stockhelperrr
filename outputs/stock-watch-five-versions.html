@@ -579,6 +579,41 @@
       white-space: nowrap;
     }
 
+    .top-actions {
+      display: grid;
+      justify-items: end;
+      gap: 10px;
+    }
+
+    .mode-switch {
+      display: flex;
+      gap: 6px;
+      padding: 5px;
+      border: 1px solid var(--line);
+      background: var(--chrome);
+      backdrop-filter: blur(14px);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .mode-button {
+      height: 30px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 7px;
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .mode-button.active {
+      color: var(--text);
+      border-color: var(--line);
+      background: var(--panel-2);
+    }
+
     .controls {
       display: grid;
       grid-template-columns: minmax(220px, 320px) auto minmax(0, 1fr);
@@ -1075,6 +1110,38 @@
       min-height: 0;
     }
 
+    body[data-view="focus"] .market-map {
+      display: none;
+    }
+
+    body[data-view="focus"] .portfolio-stage {
+      grid-template-columns: 1fr;
+    }
+
+    body[data-view="focus"] .stage-side {
+      display: none;
+    }
+
+    body[data-view="focus"] .dashboard {
+      grid-template-columns: minmax(0, 1fr) 300px;
+    }
+
+    body[data-view="atlas"] .portfolio-stage {
+      grid-template-columns: minmax(0, .85fr) minmax(360px, 1.15fr);
+    }
+
+    body[data-view="atlas"] .map-grid {
+      grid-auto-rows: 110px;
+    }
+
+    body[data-view="atlas"] .dashboard {
+      grid-template-columns: 1fr;
+    }
+
+    body[data-view="atlas"] .details-card {
+      grid-template-rows: auto auto auto;
+    }
+
     .chart-card,
     .details-card {
       border: 1px solid var(--line);
@@ -1364,7 +1431,10 @@
           <h2 class="hero-title" id="themeHeadline">Focused trading desk</h2>
           <p class="sub" id="themeDescription">Compact, dark, data-first interface for fast scanning.</p>
         </div>
-        <div class="clock" id="clock">--</div>
+        <div class="top-actions">
+          <div class="mode-switch" id="modeSwitch" aria-label="View mode"></div>
+          <div class="clock" id="clock">--</div>
+        </div>
       </header>
 
       <section class="portfolio-stage">
@@ -1504,6 +1574,12 @@
       { id: "1Y", points: 180, label: "1Y" }
     ];
 
+    const modes = [
+      { id: "studio", label: "Studio" },
+      { id: "focus", label: "Focus" },
+      { id: "atlas", label: "Atlas" }
+    ];
+
     const companyNames = {
       AAPL: "Apple Inc.",
       MSFT: "Microsoft Corp.",
@@ -1517,6 +1593,7 @@
 
     let state = {
       theme: "trader",
+      view: "studio",
       range: "1M",
       selected: "MSFT",
       symbols: ["MSFT", "AAPL", "NVDA", "TSLA"],
@@ -1584,6 +1661,12 @@
     function renderRanges() {
       $("rangeGroup").innerHTML = ranges.map((range) => `
         <button class="range-button ${range.id === state.range ? "active" : ""}" data-range-id="${range.id}" type="button">${range.label}</button>
+      `).join("");
+    }
+
+    function renderModes() {
+      $("modeSwitch").innerHTML = modes.map((mode) => `
+        <button class="mode-button ${mode.id === state.view ? "active" : ""}" data-view-id="${mode.id}" type="button">${mode.label}</button>
       `).join("");
     }
 
@@ -1887,8 +1970,10 @@
     function renderAll() {
       const theme = themes.find((item) => item.id === state.theme);
       document.body.dataset.theme = state.theme;
+      document.body.dataset.view = state.view;
       document.title = "Stock Five - " + theme.name;
       renderThemes();
+      renderModes();
       renderRanges();
       renderWatchlist();
       renderSelected();
@@ -1915,6 +2000,13 @@
       const button = event.target.closest("[data-range-id]");
       if (!button) return;
       state.range = button.dataset.rangeId;
+      renderAll();
+    });
+
+    $("modeSwitch").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-view-id]");
+      if (!button) return;
+      state.view = button.dataset.viewId;
       renderAll();
     });
 
