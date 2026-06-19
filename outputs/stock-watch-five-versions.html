@@ -1,0 +1,831 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stock Five - Windows Local</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f6f8;
+      --panel: #ffffff;
+      --panel-2: #eef2f6;
+      --text: #17202a;
+      --muted: #687384;
+      --line: #d7dee8;
+      --accent: #0f7b6c;
+      --accent-2: #d4573f;
+      --good: #0b8f61;
+      --bad: #c94132;
+      --shadow: 0 14px 38px rgba(25, 36, 54, .12);
+      --radius: 8px;
+      --font: "Segoe UI", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font);
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    body[data-theme="terminal"] {
+      color-scheme: dark;
+      --bg: #06120f;
+      --panel: #0c1c17;
+      --panel-2: #10271f;
+      --text: #e4fff4;
+      --muted: #86aa9b;
+      --line: #1e4035;
+      --accent: #36e69b;
+      --accent-2: #e8d36f;
+      --good: #51f3a8;
+      --bad: #ff6f6a;
+      --shadow: 0 18px 44px rgba(0, 0, 0, .28);
+      --font: Consolas, "Cascadia Mono", monospace;
+    }
+
+    body[data-theme="newspaper"] {
+      --bg: #f5f0e6;
+      --panel: #fffaf0;
+      --panel-2: #eee5d5;
+      --text: #201d18;
+      --muted: #716756;
+      --line: #d2c5ae;
+      --accent: #8b2f25;
+      --accent-2: #194f68;
+      --good: #227044;
+      --bad: #9e2c24;
+      --shadow: 0 12px 24px rgba(73, 54, 31, .12);
+      --font: Georgia, "Times New Roman", serif;
+    }
+
+    body[data-theme="glass"] {
+      color-scheme: dark;
+      --bg: #101820;
+      --panel: rgba(246, 250, 255, .12);
+      --panel-2: rgba(246, 250, 255, .08);
+      --text: #f4f8ff;
+      --muted: #b7c4d3;
+      --line: rgba(255, 255, 255, .18);
+      --accent: #66d9ff;
+      --accent-2: #ffbf69;
+      --good: #79e38b;
+      --bad: #ff7b7b;
+      --shadow: 0 20px 54px rgba(0, 0, 0, .35);
+    }
+
+    body[data-theme="trader"] {
+      color-scheme: dark;
+      --bg: #111318;
+      --panel: #181b22;
+      --panel-2: #20242d;
+      --text: #f1f4f8;
+      --muted: #98a2b1;
+      --line: #2e3440;
+      --accent: #2f80ed;
+      --accent-2: #f2994a;
+      --good: #27ae60;
+      --bad: #eb5757;
+      --shadow: 0 16px 40px rgba(0, 0, 0, .22);
+    }
+
+    body[data-theme="pastel"] {
+      --bg: #fbf7f4;
+      --panel: #ffffff;
+      --panel-2: #f1edf8;
+      --text: #23222b;
+      --muted: #746f82;
+      --line: #ded7e8;
+      --accent: #6b78d6;
+      --accent-2: #d06c8d;
+      --good: #26876f;
+      --bad: #d24c60;
+      --shadow: 0 16px 34px rgba(76, 65, 95, .13);
+    }
+
+    .shell {
+      width: min(1440px, 100%);
+      margin: 0 auto;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      padding: 22px;
+      border-right: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .mark {
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      color: var(--accent);
+      background: var(--panel-2);
+      font-weight: 800;
+    }
+
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 20px; line-height: 1.2; letter-spacing: 0; }
+    .sub { color: var(--muted); font-size: 12px; margin-top: 3px; }
+
+    .theme-list {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .theme-button,
+    .range-button,
+    .icon-button,
+    .primary {
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+      font: inherit;
+    }
+
+    .theme-button {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 42px;
+      padding: 0 12px;
+      text-align: left;
+    }
+
+    .theme-button:hover,
+    .range-button:hover,
+    .icon-button:hover,
+    .primary:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+    }
+
+    .theme-button.active,
+    .range-button.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    body[data-theme="terminal"] .theme-button.active,
+    body[data-theme="terminal"] .range-button.active {
+      color: #03130d;
+    }
+
+    .swatches { display: flex; gap: 4px; }
+    .swatch {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      border: 1px solid rgba(0,0,0,.08);
+      background: var(--c);
+    }
+
+    .watch-panel {
+      border-top: 1px solid var(--line);
+      padding-top: 20px;
+    }
+
+    .watch-title {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 10px;
+    }
+
+    .watch-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .watch-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      border-radius: 8px;
+    }
+
+    .ticker { font-weight: 800; }
+    .price { color: var(--muted); font-size: 12px; margin-top: 2px; }
+    .change { font-size: 13px; font-weight: 700; }
+    .up { color: var(--good); }
+    .down { color: var(--bad); }
+
+    .main {
+      padding: 22px;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .hero-title {
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .clock {
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: minmax(220px, 320px) auto minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+    }
+
+    .add-form {
+      display: flex;
+      height: 42px;
+      gap: 8px;
+    }
+
+    input {
+      min-width: 0;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--text);
+      padding: 0 12px;
+      font: inherit;
+      outline: none;
+    }
+
+    input:focus { border-color: var(--accent); }
+
+    .primary {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .range-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .range-button {
+      height: 38px;
+      min-width: 52px;
+      padding: 0 10px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .status {
+      text-align: right;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 16px;
+      min-height: 0;
+    }
+
+    .chart-card,
+    .details-card {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    body[data-theme="glass"] .chart-card,
+    body[data-theme="glass"] .details-card,
+    body[data-theme="glass"] .sidebar {
+      backdrop-filter: blur(22px);
+    }
+
+    .chart-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: end;
+      padding: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .selected-symbol {
+      font-size: 30px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .selected-name {
+      color: var(--muted);
+      margin-top: 5px;
+      font-size: 13px;
+    }
+
+    .big-price {
+      font-size: 28px;
+      font-weight: 900;
+      text-align: right;
+      line-height: 1;
+    }
+
+    .big-change {
+      text-align: right;
+      margin-top: 5px;
+      font-weight: 800;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      height: min(54vh, 520px);
+      min-height: 330px;
+      padding: 16px;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .details-card {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    .details-head {
+      padding: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .details-head h2 { font-size: 18px; }
+
+    .metric-grid {
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      align-content: start;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: var(--panel-2);
+      min-height: 74px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 19px;
+      overflow-wrap: anywhere;
+    }
+
+    .news {
+      padding: 14px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .mini-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .icon-button {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      font-size: 17px;
+    }
+
+    @media (max-width: 980px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--line);
+      }
+      .theme-list { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+      .theme-button { min-height: 50px; align-items: flex-start; flex-direction: column; padding: 8px; }
+      .watch-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .dashboard { grid-template-columns: 1fr; }
+      .controls { grid-template-columns: 1fr; }
+      .status { text-align: left; }
+    }
+
+    @media (max-width: 620px) {
+      .main, .sidebar { padding: 16px; }
+      .topbar { grid-template-columns: 1fr; }
+      .theme-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .watch-list { grid-template-columns: 1fr; }
+      .chart-head { grid-template-columns: 1fr; }
+      .big-price, .big-change { text-align: left; }
+      .canvas-wrap { min-height: 280px; height: 360px; }
+      .metric-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body data-theme="trader">
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="mark">S5</div>
+        <div>
+          <h1>Stock Five</h1>
+          <p class="sub">Windows local watchlist</p>
+        </div>
+      </div>
+
+      <div class="theme-list" id="themeList" aria-label="视觉版本"></div>
+
+      <section class="watch-panel">
+        <div class="watch-title">Watchlist</div>
+        <div class="watch-list" id="watchList"></div>
+      </section>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h2 class="hero-title" id="themeHeadline">Focused trading desk</h2>
+          <p class="sub" id="themeDescription">Compact, dark, data-first interface for fast scanning.</p>
+        </div>
+        <div class="clock" id="clock">--</div>
+      </header>
+
+      <section class="controls">
+        <form class="add-form" id="addForm">
+          <input id="symbolInput" autocomplete="off" maxlength="8" placeholder="Add symbol, e.g. MSFT">
+          <button class="primary" type="submit" title="添加股票" aria-label="添加股票">+</button>
+        </form>
+        <div class="range-group" id="rangeGroup" aria-label="时间范围"></div>
+        <div class="status" id="status">Local demo data. No account needed.</div>
+      </section>
+
+      <section class="dashboard">
+        <article class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="selected-symbol" id="selectedSymbol">MSFT</div>
+              <div class="selected-name" id="selectedName">Microsoft Corp.</div>
+            </div>
+            <div>
+              <div class="big-price" id="selectedPrice">$0.00</div>
+              <div class="big-change" id="selectedChange">0.00%</div>
+            </div>
+          </div>
+          <div class="canvas-wrap">
+            <canvas id="chart" width="1200" height="620"></canvas>
+          </div>
+        </article>
+
+        <aside class="details-card">
+          <div class="details-head">
+            <h2>Snapshot</h2>
+            <div class="mini-actions">
+              <button class="icon-button" id="shuffleButton" title="刷新模拟行情" aria-label="刷新模拟行情">↻</button>
+              <button class="icon-button" id="removeButton" title="删除当前股票" aria-label="删除当前股票">×</button>
+            </div>
+          </div>
+          <div class="metric-grid">
+            <div class="metric"><span>Open</span><strong id="openMetric">$0.00</strong></div>
+            <div class="metric"><span>High</span><strong id="highMetric">$0.00</strong></div>
+            <div class="metric"><span>Low</span><strong id="lowMetric">$0.00</strong></div>
+            <div class="metric"><span>Volume</span><strong id="volumeMetric">0M</strong></div>
+            <div class="metric"><span>Range</span><strong id="rangeMetric">1M</strong></div>
+            <div class="metric"><span>Theme</span><strong id="themeMetric">Trader</strong></div>
+          </div>
+          <div class="news" id="note">
+            Tip: this is an offline Windows-friendly prototype. It uses deterministic demo price paths, so every added ticker gets a plausible local chart immediately.
+          </div>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const themes = [
+      { id: "trader", name: "Trader", headline: "Focused trading desk", desc: "Compact, dark, data-first interface for fast scanning.", colors: ["#181b22", "#2f80ed", "#27ae60"] },
+      { id: "terminal", name: "Terminal", headline: "Market command line", desc: "Monospace, high contrast, hacker-style market board.", colors: ["#06120f", "#36e69b", "#e8d36f"] },
+      { id: "newspaper", name: "Newspaper", headline: "Financial paper", desc: "Editorial, calm, old-school market reading room.", colors: ["#fffaf0", "#8b2f25", "#194f68"] },
+      { id: "glass", name: "Glass", headline: "Frosted market lab", desc: "Translucent panels with a cool modern dashboard feel.", colors: ["#101820", "#66d9ff", "#ffbf69"] },
+      { id: "pastel", name: "Pastel", headline: "Soft portfolio board", desc: "Light, friendly, colorful watchlist for everyday checking.", colors: ["#ffffff", "#6b78d6", "#d06c8d"] }
+    ];
+
+    const ranges = [
+      { id: "1D", points: 32, label: "1D" },
+      { id: "1W", points: 56, label: "1W" },
+      { id: "1M", points: 84, label: "1M" },
+      { id: "3M", points: 120, label: "3M" },
+      { id: "1Y", points: 180, label: "1Y" }
+    ];
+
+    const companyNames = {
+      AAPL: "Apple Inc.",
+      MSFT: "Microsoft Corp.",
+      NVDA: "NVIDIA Corp.",
+      TSLA: "Tesla Inc.",
+      AMD: "Advanced Micro Devices",
+      META: "Meta Platforms",
+      AMZN: "Amazon.com Inc.",
+      GOOGL: "Alphabet Inc."
+    };
+
+    let state = {
+      theme: "trader",
+      range: "1M",
+      selected: "MSFT",
+      symbols: ["MSFT", "AAPL", "NVDA", "TSLA"],
+      nonce: 1
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const money = (value) => "$" + value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    function hashSymbol(symbol) {
+      return [...symbol].reduce((acc, char) => acc + char.charCodeAt(0) * 17, 97);
+    }
+
+    function seededNoise(seed) {
+      const x = Math.sin(seed) * 10000;
+      return x - Math.floor(x);
+    }
+
+    function seriesFor(symbol, points) {
+      const seed = hashSymbol(symbol) + state.nonce * 31;
+      const base = 45 + (seed % 260);
+      const volatility = 1.6 + (seed % 9) / 3;
+      const drift = ((seed % 19) - 8) / 92;
+      const values = [];
+      let price = base;
+      for (let i = 0; i < points; i++) {
+        const wave = Math.sin((i + seed) / 6) * volatility;
+        const bump = (seededNoise(seed + i * 11) - .48) * volatility * 2.2;
+        price = Math.max(5, price + drift + wave * .08 + bump);
+        values.push(Number(price.toFixed(2)));
+      }
+      return values;
+    }
+
+    function stats(symbol) {
+      const range = ranges.find((item) => item.id === state.range);
+      const values = seriesFor(symbol, range.points);
+      const first = values[0];
+      const last = values[values.length - 1];
+      const change = ((last - first) / first) * 100;
+      const high = Math.max(...values);
+      const low = Math.min(...values);
+      const volume = 8 + (hashSymbol(symbol) % 92) + state.nonce;
+      return { values, first, last, change, high, low, volume };
+    }
+
+    function renderThemes() {
+      $("themeList").innerHTML = themes.map((theme) => `
+        <button class="theme-button ${theme.id === state.theme ? "active" : ""}" data-theme-id="${theme.id}" type="button">
+          <span>${theme.name}</span>
+          <span class="swatches">${theme.colors.map((color) => `<i class="swatch" style="--c:${color}"></i>`).join("")}</span>
+        </button>
+      `).join("");
+    }
+
+    function renderRanges() {
+      $("rangeGroup").innerHTML = ranges.map((range) => `
+        <button class="range-button ${range.id === state.range ? "active" : ""}" data-range-id="${range.id}" type="button">${range.label}</button>
+      `).join("");
+    }
+
+    function renderWatchlist() {
+      $("watchList").innerHTML = state.symbols.map((symbol) => {
+        const item = stats(symbol);
+        const trend = item.change >= 0 ? "up" : "down";
+        const sign = item.change >= 0 ? "+" : "";
+        return `
+          <button class="watch-row" data-symbol="${symbol}" type="button" aria-label="查看 ${symbol}">
+            <span>
+              <span class="ticker">${symbol}</span>
+              <span class="price">${money(item.last)}</span>
+            </span>
+            <span class="change ${trend}">${sign}${item.change.toFixed(2)}%</span>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function renderSelected() {
+      const selected = stats(state.selected);
+      const theme = themes.find((item) => item.id === state.theme);
+      const trend = selected.change >= 0 ? "up" : "down";
+      const sign = selected.change >= 0 ? "+" : "";
+      $("selectedSymbol").textContent = state.selected;
+      $("selectedName").textContent = companyNames[state.selected] || state.selected + " Holdings";
+      $("selectedPrice").textContent = money(selected.last);
+      $("selectedChange").textContent = sign + selected.change.toFixed(2) + "%";
+      $("selectedChange").className = "big-change " + trend;
+      $("openMetric").textContent = money(selected.first);
+      $("highMetric").textContent = money(selected.high);
+      $("lowMetric").textContent = money(selected.low);
+      $("volumeMetric").textContent = selected.volume.toFixed(1) + "M";
+      $("rangeMetric").textContent = state.range;
+      $("themeMetric").textContent = theme.name;
+      $("themeHeadline").textContent = theme.headline;
+      $("themeDescription").textContent = theme.desc;
+      drawChart(selected.values, selected.change);
+    }
+
+    function drawChart(values, change) {
+      const canvas = $("chart");
+      const ctx = canvas.getContext("2d");
+      const width = canvas.width;
+      const height = canvas.height;
+      const styles = getComputedStyle(document.body);
+      const text = styles.getPropertyValue("--muted").trim();
+      const line = styles.getPropertyValue("--line").trim();
+      const accent = change >= 0 ? styles.getPropertyValue("--good").trim() : styles.getPropertyValue("--bad").trim();
+      const fill = styles.getPropertyValue("--accent").trim();
+      ctx.clearRect(0, 0, width, height);
+
+      const pad = { left: 54, right: 22, top: 28, bottom: 46 };
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const spread = Math.max(1, max - min);
+      const xFor = (i) => pad.left + (i / (values.length - 1)) * (width - pad.left - pad.right);
+      const yFor = (value) => pad.top + (1 - ((value - min) / spread)) * (height - pad.top - pad.bottom);
+
+      ctx.strokeStyle = line;
+      ctx.lineWidth = 1;
+      ctx.font = "18px " + getComputedStyle(document.body).fontFamily;
+      ctx.fillStyle = text;
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+      for (let i = 0; i < 5; i++) {
+        const y = pad.top + i * (height - pad.top - pad.bottom) / 4;
+        ctx.beginPath();
+        ctx.moveTo(pad.left, y);
+        ctx.lineTo(width - pad.right, y);
+        ctx.stroke();
+        const label = max - (i * spread / 4);
+        ctx.fillText("$" + label.toFixed(0), pad.left - 12, y);
+      }
+
+      const gradient = ctx.createLinearGradient(0, pad.top, 0, height - pad.bottom);
+      gradient.addColorStop(0, fill + "66");
+      gradient.addColorStop(1, fill + "00");
+      ctx.beginPath();
+      values.forEach((value, i) => {
+        const x = xFor(i);
+        const y = yFor(value);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.lineTo(width - pad.right, height - pad.bottom);
+      ctx.lineTo(pad.left, height - pad.bottom);
+      ctx.closePath();
+      ctx.fillStyle = gradient;
+      ctx.fill();
+
+      ctx.beginPath();
+      values.forEach((value, i) => {
+        const x = xFor(i);
+        const y = yFor(value);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 4;
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
+      ctx.stroke();
+
+      const lastX = xFor(values.length - 1);
+      const lastY = yFor(values[values.length - 1]);
+      ctx.fillStyle = accent;
+      ctx.beginPath();
+      ctx.arc(lastX, lastY, 7, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function renderAll() {
+      const theme = themes.find((item) => item.id === state.theme);
+      document.body.dataset.theme = state.theme;
+      document.title = "Stock Five - " + theme.name;
+      renderThemes();
+      renderRanges();
+      renderWatchlist();
+      renderSelected();
+    }
+
+    function updateClock() {
+      const now = new Date();
+      $("clock").textContent = now.toLocaleString("zh-CN", {
+        weekday: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+      });
+    }
+
+    $("themeList").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-theme-id]");
+      if (!button) return;
+      state.theme = button.dataset.themeId;
+      renderAll();
+    });
+
+    $("rangeGroup").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-range-id]");
+      if (!button) return;
+      state.range = button.dataset.rangeId;
+      renderAll();
+    });
+
+    $("watchList").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-symbol]");
+      if (!button) return;
+      state.selected = button.dataset.symbol;
+      renderAll();
+    });
+
+    $("addForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const symbol = $("symbolInput").value.trim().toUpperCase().replace(/[^A-Z.]/g, "").slice(0, 8);
+      if (!symbol) return;
+      if (!state.symbols.includes(symbol)) state.symbols.unshift(symbol);
+      state.selected = symbol;
+      $("symbolInput").value = "";
+      renderAll();
+    });
+
+    $("shuffleButton").addEventListener("click", () => {
+      state.nonce += 1;
+      renderAll();
+    });
+
+    $("removeButton").addEventListener("click", () => {
+      if (state.symbols.length <= 1) return;
+      state.symbols = state.symbols.filter((symbol) => symbol !== state.selected);
+      state.selected = state.symbols[0];
+      renderAll();
+    });
+
+    window.addEventListener("resize", () => renderSelected());
+    setInterval(updateClock, 1000);
+    updateClock();
+    renderAll();
+  </script>
+</body>
+</html>
