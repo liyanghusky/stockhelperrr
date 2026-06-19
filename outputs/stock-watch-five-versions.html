@@ -528,6 +528,24 @@
       border-radius: 8px;
     }
 
+    .watch-spark {
+      grid-column: 1 / -1;
+      height: 22px;
+      display: grid;
+      grid-template-columns: repeat(14, 1fr);
+      align-items: end;
+      gap: 3px;
+      opacity: .92;
+    }
+
+    .watch-spark i {
+      display: block;
+      height: var(--h);
+      min-height: 4px;
+      border-radius: 999px 999px 2px 2px;
+      background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent-2), var(--accent) 45%));
+    }
+
     .ticker { font-weight: 800; }
     .price { color: var(--muted); font-size: 12px; margin-top: 2px; }
     .change { font-size: 13px; font-weight: 700; }
@@ -739,6 +757,28 @@
       letter-spacing: 0;
     }
 
+    .style-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .style-tag {
+      min-height: 28px;
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      border-radius: 999px;
+      padding: 0 10px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
     .rail-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -879,6 +919,155 @@
       font-size: 13px;
     }
 
+    .market-map {
+      border: 1px solid var(--line);
+      background: var(--chrome);
+      backdrop-filter: blur(18px);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .map-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .map-head h3 {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.1;
+    }
+
+    .map-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .map-legend {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .legend-line {
+      width: 90px;
+      height: 9px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--bad), var(--panel-2), var(--good));
+      border: 1px solid var(--line);
+    }
+
+    .map-grid {
+      padding: 14px;
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      grid-auto-rows: 84px;
+      gap: 10px;
+    }
+
+    .map-tile {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      overflow: hidden;
+      position: relative;
+      background:
+        linear-gradient(135deg, color-mix(in srgb, var(--tile), transparent 15%), color-mix(in srgb, var(--panel-2), var(--tile) 14%));
+      display: grid;
+      align-content: space-between;
+      min-width: 0;
+    }
+
+    .map-tile.feature {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+
+    .map-tile.active {
+      border-color: var(--accent);
+      box-shadow: inset 0 0 0 1px var(--accent), 0 0 28px color-mix(in srgb, var(--accent), transparent 72%);
+    }
+
+    .map-tile::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.08) 0 1px, transparent 1px 22px);
+      opacity: .35;
+      pointer-events: none;
+    }
+
+    .map-symbol,
+    .map-change,
+    .map-weight,
+    .map-mini {
+      position: relative;
+      z-index: 1;
+    }
+
+    .map-symbol {
+      font-size: 20px;
+      font-weight: 950;
+      line-height: 1;
+    }
+
+    .map-tile.feature .map-symbol {
+      font-size: 34px;
+    }
+
+    .map-change {
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .map-weight {
+      color: color-mix(in srgb, var(--text), transparent 22%);
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .map-tile:not(.feature) .map-symbol {
+      font-size: 18px;
+    }
+
+    .map-tile:not(.feature) .map-weight {
+      font-size: 10px;
+    }
+
+    .map-mini {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      align-items: end;
+      gap: 3px;
+      height: 24px;
+    }
+
+    .map-tile:not(.feature) .map-mini {
+      height: 16px;
+    }
+
+    .map-mini i {
+      display: block;
+      height: var(--h);
+      min-height: 4px;
+      border-radius: 999px 999px 2px 2px;
+      background: color-mix(in srgb, var(--text), transparent 18%);
+      opacity: .78;
+    }
+
     .dashboard {
       display: grid;
       grid-template-columns: minmax(0, 1fr) 340px;
@@ -899,6 +1088,19 @@
 
     .chart-card {
       position: relative;
+    }
+
+    .chart-watermark {
+      position: absolute;
+      right: 18px;
+      bottom: 10px;
+      z-index: 0;
+      pointer-events: none;
+      color: color-mix(in srgb, var(--text), transparent 91%);
+      font-size: clamp(78px, 14vw, 180px);
+      line-height: .8;
+      font-weight: 950;
+      letter-spacing: 0;
     }
 
     .chart-card::before {
@@ -1114,6 +1316,7 @@
       .stage-main { grid-template-columns: 1fr; }
       .stage-visual { border-left: none; border-top: 1px solid var(--line); }
       .dashboard { grid-template-columns: 1fr; }
+      .map-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .controls { grid-template-columns: 1fr; }
       .status { text-align: left; }
     }
@@ -1129,6 +1332,10 @@
       .metric-grid { grid-template-columns: 1fr; }
       .rail-grid { grid-template-columns: 1fr; }
       .composition-row { grid-template-columns: 48px minmax(0, 1fr) 46px; }
+      .map-head { align-items: flex-start; flex-direction: column; }
+      .map-grid { grid-template-columns: 1fr; grid-auto-rows: auto; }
+      .map-tile,
+      .map-tile.feature { grid-column: span 1; grid-row: span 1; min-height: 96px; }
     }
   </style>
 </head>
@@ -1185,6 +1392,7 @@
           <div>
             <div class="rail-label">Style thesis</div>
             <div class="thesis" id="styleThesis">A sharper trading surface with depth, rhythm and a clear visual signature.</div>
+            <div class="style-tags" id="styleTags"></div>
           </div>
           <div class="rail-grid">
             <div class="rail-tile"><span>Breadth</span><strong id="breadthMetric">0/0</strong></div>
@@ -1211,8 +1419,20 @@
         <div class="status" id="status">Served from localhost. Demo data, no account needed.</div>
       </section>
 
+      <section class="market-map">
+        <div class="map-head">
+          <div>
+            <h3>Market map</h3>
+            <p id="mapSubhead">Weighted by simulated position size and range performance.</p>
+          </div>
+          <div class="map-legend"><span>cooling</span><i class="legend-line"></i><span>leading</span></div>
+        </div>
+        <div class="map-grid" id="marketMap"></div>
+      </section>
+
       <section class="dashboard">
         <article class="chart-card">
+          <div class="chart-watermark" id="chartWatermark">MSFT</div>
           <div class="chart-head">
             <div>
               <div class="selected-symbol" id="selectedSymbol">MSFT</div>
@@ -1372,6 +1592,7 @@
         const item = stats(symbol);
         const trend = item.change >= 0 ? "up" : "down";
         const sign = item.change >= 0 ? "+" : "";
+        const spark = sparkBars(item.values.slice(-14));
         return `
           <button class="watch-row" data-symbol="${symbol}" type="button" aria-label="查看 ${symbol}">
             <span>
@@ -1379,6 +1600,7 @@
               <span class="price">${money(item.last)}</span>
             </span>
             <span class="change ${trend}">${sign}${item.change.toFixed(2)}%</span>
+            <span class="watch-spark">${spark}</span>
           </button>
         `;
       }).join("");
@@ -1390,6 +1612,7 @@
       const trend = selected.change >= 0 ? "up" : "down";
       const sign = selected.change >= 0 ? "+" : "";
       $("selectedSymbol").textContent = state.selected;
+      $("chartWatermark").textContent = state.selected;
       $("selectedName").textContent = companyNames[state.selected] || state.selected + " Holdings";
       $("selectedPrice").textContent = money(selected.last);
       $("selectedChange").textContent = sign + selected.change.toFixed(2) + "%";
@@ -1405,6 +1628,16 @@
       renderPortfolio(theme, selected);
       renderTape();
       drawChart(selected.values, selected.change);
+    }
+
+    function sparkBars(values) {
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const spread = Math.max(1, max - min);
+      return values.map((value) => {
+        const height = 4 + ((value - min) / spread) * 18;
+        return `<i style="--h:${height.toFixed(0)}px"></i>`;
+      }).join("");
     }
 
     function holdingFor(symbol) {
@@ -1444,6 +1677,7 @@
       $("styleThesis").textContent = theme.group === "Fancy"
         ? `${theme.name} pushes the interface toward a stronger visual identity while keeping the trading controls close.`
         : `${theme.name} keeps the surface calm, precise and editorial so the data can breathe.`;
+      $("styleTags").innerHTML = styleTraits(theme).map((trait) => `<span class="style-tag">${trait}</span>`).join("");
       $("signatureCaption").textContent = theme.group + " system";
       $("signatureName").textContent = theme.name;
       $("signatureArt").style.setProperty("--sig1", theme.colors[0]);
@@ -1470,6 +1704,57 @@
         const height = 18 + ((value - min) / spread) * 44;
         return `<i style="--h:${height.toFixed(0)}px"></i>`;
       }).join("");
+      renderMarketMap(snap);
+    }
+
+    function tileColor(change) {
+      if (change >= 8) return "var(--good)";
+      if (change >= 1.5) return "color-mix(in srgb, var(--good), var(--accent) 32%)";
+      if (change > -1.5) return "color-mix(in srgb, var(--panel-2), var(--accent) 16%)";
+      if (change > -6) return "color-mix(in srgb, var(--bad), var(--accent-2) 28%)";
+      return "var(--bad)";
+    }
+
+    function renderMarketMap(snapshot) {
+      const rows = [...snapshot.rows].sort((a, b) => b.value - a.value);
+      const maxValue = Math.max(...rows.map((row) => row.value), 1);
+      $("marketMap").innerHTML = rows.map((row, index) => {
+        const weight = snapshot.total ? (row.value / snapshot.total) * 100 : 0;
+        const sign = row.change >= 0 ? "+" : "";
+        const mini = sparkBars(row.values.slice(-8));
+        const feature = row.value > maxValue * .72 || index === 0 ? " feature" : "";
+        const active = row.symbol === state.selected ? " active" : "";
+        return `
+          <button class="map-tile${feature}${active}" data-symbol="${row.symbol}" type="button" style="--tile:${tileColor(row.change)}" aria-label="Open ${row.symbol}">
+            <span class="map-symbol">${row.symbol}</span>
+            <span class="map-change">${sign}${row.change.toFixed(2)}%</span>
+            <span class="map-weight">${weight.toFixed(1)}% weight · ${row.shares} sh</span>
+            <span class="map-mini">${mini}</span>
+          </button>
+        `;
+      }).join("");
+      $("mapSubhead").textContent = `${rows.length} holdings · ${snapshot.winners} positive · ${state.range} range`;
+    }
+
+    function styleTraits(theme) {
+      const traits = {
+        trader: ["dense", "dark", "scan"],
+        terminal: ["mono", "grid", "signal"],
+        newspaper: ["editorial", "paper", "calm"],
+        glass: ["frosted", "layered", "cool"],
+        pastel: ["soft", "friendly", "light"],
+        aurora: ["glow", "teal", "motion"],
+        ink: ["contrast", "print", "sharp"],
+        candy: ["pop", "bright", "playful"],
+        brutal: ["loud", "blocks", "impact"],
+        mono: ["quiet", "system", "precise"],
+        luxury: ["gold", "private", "warm"],
+        cyber: ["neon", "future", "electric"],
+        zen: ["green", "slow", "clear"],
+        bloom: ["warm", "fresh", "editorial"],
+        cockpit: ["amber", "utility", "instrument"]
+      };
+      return traits[theme.id] || [theme.group, "market", "surface"];
     }
 
     function renderTape() {
@@ -1525,6 +1810,18 @@
         ctx.fillText("$" + label.toFixed(0), pad.left - 12, y);
       }
 
+      const avg = values.reduce((sum, value) => sum + value, 0) / values.length;
+      const avgY = yFor(avg);
+      ctx.save();
+      ctx.setLineDash([10, 10]);
+      ctx.strokeStyle = text;
+      ctx.globalAlpha = .42;
+      ctx.beginPath();
+      ctx.moveTo(pad.left, avgY);
+      ctx.lineTo(width - pad.right, avgY);
+      ctx.stroke();
+      ctx.restore();
+
       const gradient = ctx.createLinearGradient(0, pad.top, 0, height - pad.bottom);
       gradient.addColorStop(0, fill + "66");
       gradient.addColorStop(1, fill + "00");
@@ -1560,6 +1857,31 @@
       ctx.beginPath();
       ctx.arc(lastX, lastY, 7, 0, Math.PI * 2);
       ctx.fill();
+
+      const highIndex = values.indexOf(max);
+      const lowIndex = values.indexOf(min);
+      drawChartTag(ctx, xFor(highIndex), yFor(max) - 18, "HIGH " + money(max), accent, width);
+      drawChartTag(ctx, xFor(lowIndex), yFor(min) + 18, "LOW " + money(min), text, width);
+      drawChartTag(ctx, width - pad.right - 94, avgY - 18, "AVG " + money(avg), text, width);
+    }
+
+    function drawChartTag(ctx, x, y, label, color, canvasWidth) {
+      ctx.save();
+      ctx.font = "700 15px " + getComputedStyle(document.body).fontFamily;
+      const width = ctx.measureText(label).width + 18;
+      const left = Math.max(60, Math.min(canvasWidth - width - 18, x - width / 2));
+      const top = Math.max(14, y - 14);
+      ctx.fillStyle = color;
+      ctx.globalAlpha = .14;
+      ctx.fillRect(left, top, width, 28);
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = color;
+      ctx.strokeRect(left, top, width, 28);
+      ctx.fillStyle = color;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(label, left + width / 2, top + 14);
+      ctx.restore();
     }
 
     function renderAll() {
@@ -1597,6 +1919,13 @@
     });
 
     $("watchList").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-symbol]");
+      if (!button) return;
+      state.selected = button.dataset.symbol;
+      renderAll();
+    });
+
+    $("marketMap").addEventListener("click", (event) => {
       const button = event.target.closest("[data-symbol]");
       if (!button) return;
       state.selected = button.dataset.symbol;
