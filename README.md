@@ -4,6 +4,10 @@ Windows-friendly local trackers with tiny Python servers.
 
 ## Stock tracker
 
+Public static site:
+
+`https://liyanghusky.github.io/stockhelperrr/`
+
 Open `outputs/open-stock-five.bat` on Windows. It starts the stock server and opens:
 
 `http://127.0.0.1:8765/`
