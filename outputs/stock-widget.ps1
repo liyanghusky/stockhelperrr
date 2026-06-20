@@ -34,7 +34,7 @@ Add-Type -TypeDefinition $signature
 $xaml = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Width="390" Height="522"
+        Width="390" Height="448"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
@@ -81,7 +81,7 @@ $xaml = @"
             <TextBlock x:Name="PortfolioText" Text="$0.00" Foreground="#E9E6DD" FontSize="30" FontWeight="Black" Margin="0,4,0,0"/>
           </StackPanel>
           <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
-            <TextBlock x:Name="PortfolioChangeText" Text="+0.00%" Foreground="#F8F4E8" FontFamily="Bahnschrift SemiCondensed, Consolas" FontSize="20" FontWeight="Black" TextAlignment="Right"/>
+            <TextBlock x:Name="PortfolioChangeText" Text="+0.00%" Foreground="#E9E6DD" FontFamily="Bahnschrift SemiCondensed, Consolas" FontSize="20" FontWeight="Black" TextAlignment="Right"/>
             <TextBlock Text="SESSION" Foreground="#86847D" FontSize="10" FontWeight="Bold" TextAlignment="Right"/>
           </StackPanel>
         </Grid>
@@ -171,8 +171,8 @@ function Format-Money($value) {
 }
 
 function Get-ChangeBrush($isUp) {
-  if ($isUp) { return "#F8F4E8" }
-  return "#FF5D4D"
+  if ($isUp) { return "#E9E6DD" }
+  return "#D86A5B"
 }
 
 function Get-ChangeText($value) {
@@ -183,18 +183,18 @@ function Add-StockRow($item) {
   $isUp = $item.Change -ge 0
   $changeBrush = Get-ChangeBrush $isUp
   $row = New-Object System.Windows.Controls.Border
-  $row.CornerRadius = "0"
+  $row.CornerRadius = "2"
   $row.BorderThickness = "1"
-  $row.BorderBrush = if ($isUp) { "#66F8F4E8" } else { "#99FF5D4D" }
-  $row.Background = if ($isUp) { "#19000000" } else { "#220F0302" }
-  $row.Padding = "8,7"
-  $row.Margin = "0,0,0,7"
+  $row.BorderBrush = if ($isUp) { "#4CE9E6DD" } else { "#66D86A5B" }
+  $row.Background = if ($isUp) { "#18E9E6DD" } else { "#18D86A5B" }
+  $row.Padding = "8,5"
+  $row.Margin = "0,0,0,5"
 
   $grid = New-Object System.Windows.Controls.Grid
   $grid.RowDefinitions.Add((New-Object System.Windows.Controls.RowDefinition)) | Out-Null
   $grid.RowDefinitions.Add((New-Object System.Windows.Controls.RowDefinition)) | Out-Null
   $accentCol = New-Object System.Windows.Controls.ColumnDefinition
-  $accentCol.Width = "4"
+  $accentCol.Width = "3"
   $grid.ColumnDefinitions.Add($accentCol) | Out-Null
   $grid.ColumnDefinitions.Add((New-Object System.Windows.Controls.ColumnDefinition)) | Out-Null
   $col2 = New-Object System.Windows.Controls.ColumnDefinition
@@ -202,8 +202,10 @@ function Add-StockRow($item) {
   $grid.ColumnDefinitions.Add($col2) | Out-Null
 
   $accent = New-Object System.Windows.Shapes.Rectangle
-  $accent.Width = 3
+  $accent.Width = 2
   $accent.Margin = "0,1,7,1"
+  $accent.RadiusX = 2
+  $accent.RadiusY = 2
   $accent.Fill = $changeBrush
   [System.Windows.Controls.Grid]::SetColumn($accent, 0)
   [System.Windows.Controls.Grid]::SetRowSpan($accent, 2)
@@ -211,7 +213,7 @@ function Add-StockRow($item) {
   $name = New-Object System.Windows.Controls.TextBlock
   $name.Text = $item.Label
   $name.Foreground = "#E9E6DD"
-  $name.FontSize = 14
+  $name.FontSize = 13
   $name.FontWeight = [System.Windows.FontWeights]::Black
   $name.FontFamily = "Bahnschrift SemiCondensed, Segoe UI"
   [System.Windows.Controls.Grid]::SetColumn($name, 1)
@@ -220,19 +222,19 @@ function Add-StockRow($item) {
   $price = New-Object System.Windows.Controls.TextBlock
   $price.Text = if ($item.Subtext) { (Format-Money $item.Price) + "  " + $item.Subtext } else { Format-Money $item.Price }
   $price.Foreground = "#86847D"
-  $price.FontSize = 11
-  $price.Margin = "82,2,0,0"
+  $price.FontSize = 10
+  $price.Margin = "72,2,0,0"
   $price.FontFamily = "Consolas, Segoe UI"
   [System.Windows.Controls.Grid]::SetColumn($price, 1)
   [System.Windows.Controls.Grid]::SetRow($price, 0)
 
   $changeBadge = New-Object System.Windows.Controls.Border
-  $changeBadge.CornerRadius = "0"
-  $changeBadge.BorderThickness = "1,0,1,1"
+  $changeBadge.CornerRadius = "2"
+  $changeBadge.BorderThickness = "1"
   $changeBadge.BorderBrush = $changeBrush
-  $changeBadge.Background = if ($isUp) { "#18F8F4E8" } else { "#24FF5D4D" }
-  $changeBadge.Padding = "8,2"
-  $changeBadge.MinWidth = 74
+  $changeBadge.Background = if ($isUp) { "#18E9E6DD" } else { "#22D86A5B" }
+  $changeBadge.Padding = "7,1"
+  $changeBadge.MinWidth = 78
   [System.Windows.Controls.Grid]::SetColumn($changeBadge, 2)
   [System.Windows.Controls.Grid]::SetRow($changeBadge, 0)
 
@@ -240,7 +242,7 @@ function Add-StockRow($item) {
   $change.Text = Get-ChangeText $item.Change
   $change.Foreground = $changeBrush
   $change.FontFamily = "Bahnschrift SemiCondensed, Consolas"
-  $change.FontSize = 15
+  $change.FontSize = 16
   $change.FontWeight = [System.Windows.FontWeights]::Black
   $change.TextAlignment = [System.Windows.TextAlignment]::Right
   $changeBadge.Child = $change
@@ -248,7 +250,7 @@ function Add-StockRow($item) {
   $bars = New-Object System.Windows.Controls.StackPanel
   $bars.Orientation = [System.Windows.Controls.Orientation]::Horizontal
   $bars.VerticalAlignment = [System.Windows.VerticalAlignment]::Bottom
-  $bars.Margin = "0,7,0,0"
+  $bars.Margin = "0,4,0,0"
   [System.Windows.Controls.Grid]::SetColumn($bars, 1)
   [System.Windows.Controls.Grid]::SetColumnSpan($bars, 2)
   [System.Windows.Controls.Grid]::SetRow($bars, 1)
@@ -258,11 +260,11 @@ function Add-StockRow($item) {
   $spread = [Math]::Max(0.01, $max - $min)
   foreach ($value in $item.Values) {
     $bar = New-Object System.Windows.Shapes.Rectangle
-    $bar.Width = 17
-    $bar.Height = 4 + (($value - $min) / $spread) * 18
-    $bar.Margin = "0,0,4,0"
-    $bar.RadiusX = 0
-    $bar.RadiusY = 0
+    $bar.Width = 16
+    $bar.Height = 3 + (($value - $min) / $spread) * 10
+    $bar.Margin = "0,0,3,0"
+    $bar.RadiusX = 2
+    $bar.RadiusY = 2
     $bar.Fill = $changeBrush
     $bars.Children.Add($bar) | Out-Null
   }
