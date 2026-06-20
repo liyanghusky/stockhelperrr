@@ -8,3 +8,4 @@
 - Reduced the theme picker to those two preferred styles while preserving watchlist, chart, map, range and view controls.
 - Linked the stock tracker repo into `C:\Users\liyan\OneDrive\Documents\workspace\stock-watch`.
 - Added a GitHub Pages-friendly root `index.html` and `.nojekyll` so the stock tracker can be opened as a public static site.
+- Added a transparent Harkonnen-style Windows desktop stock widget with background startup, click-through behavior, simulated watchlist prices, mini bars and 3-minute refreshes.

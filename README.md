@@ -12,6 +12,14 @@ Open `outputs/open-stock-five.bat` on Windows. It starts the stock server and op
 
 `http://127.0.0.1:8765/`
 
+Desktop widget:
+
+```text
+outputs/open-stock-widget.bat
+```
+
+It opens a transparent Harkonnen-style stock widget in the background. A desktop shortcut named `Stock Watch Widget` is also created locally.
+
 You can also run it manually:
 
 ```bash
