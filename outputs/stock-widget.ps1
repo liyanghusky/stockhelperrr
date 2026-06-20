@@ -1,5 +1,5 @@
 ﻿param(
-  [string[]]$Symbols = @("MSFT", "AAPL", "NVDA", "TSLA", "AMD")
+  [string[]]$Symbols = @("MSFT", "AAPL", "NVDA", "TSLA", "AMD", "AMZN", "QQQ", "SMH", "SPACEX")
 )
 
 Add-Type -AssemblyName PresentationFramework
@@ -34,7 +34,7 @@ Add-Type -TypeDefinition $signature
 $xaml = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Width="390" Height="360"
+        Width="390" Height="522"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
@@ -122,7 +122,25 @@ function Get-SeededNoise($seed) {
   return $x - [Math]::Floor($x)
 }
 
+function Get-SymbolLabel($symbol) {
+  switch ($symbol.ToUpperInvariant()) {
+    "SPACEX" { return "SPACE X" }
+    default { return $symbol.ToUpperInvariant() }
+  }
+}
+
+function Get-SymbolSubtext($symbol) {
+  switch ($symbol.ToUpperInvariant()) {
+    "QQQ" { return "Nasdaq 100 ETF" }
+    "SMH" { return "Semiconductor ETF" }
+    "AMZN" { return "Amazon" }
+    "SPACEX" { return "私募估值" }
+    default { return "" }
+  }
+}
+
 function Get-StockSnapshot($symbol) {
+  $symbol = $symbol.ToUpperInvariant()
   $seed = Get-SymbolHash $symbol
   $slot = [Math]::Floor(((Get-Date).TimeOfDay.TotalMinutes) / 3)
   $base = 45 + ($seed % 260)
@@ -139,6 +157,8 @@ function Get-StockSnapshot($symbol) {
   $change = if ($first -ne 0) { (($last - $first) / $first) * 100 } else { 0 }
   return [pscustomobject]@{
     Symbol = $symbol
+    Label = Get-SymbolLabel $symbol
+    Subtext = Get-SymbolSubtext $symbol
     Price = $last
     Change = $change
     Values = $values
@@ -168,18 +188,18 @@ function Add-StockRow($item) {
   $grid.ColumnDefinitions.Add($col2) | Out-Null
 
   $name = New-Object System.Windows.Controls.TextBlock
-  $name.Text = $item.Symbol
+  $name.Text = $item.Label
   $name.Foreground = "#E9E6DD"
-  $name.FontSize = 15
+  $name.FontSize = 14
   $name.FontWeight = [System.Windows.FontWeights]::Black
   [System.Windows.Controls.Grid]::SetColumn($name, 0)
   [System.Windows.Controls.Grid]::SetRow($name, 0)
 
   $price = New-Object System.Windows.Controls.TextBlock
-  $price.Text = Format-Money $item.Price
+  $price.Text = if ($item.Subtext) { (Format-Money $item.Price) + "  " + $item.Subtext } else { Format-Money $item.Price }
   $price.Foreground = "#86847D"
-  $price.FontSize = 12
-  $price.Margin = "70,2,0,0"
+  $price.FontSize = 11
+  $price.Margin = "82,2,0,0"
   [System.Windows.Controls.Grid]::SetColumn($price, 0)
   [System.Windows.Controls.Grid]::SetRow($price, 0)
 
@@ -204,8 +224,8 @@ function Add-StockRow($item) {
   $spread = [Math]::Max(0.01, $max - $min)
   foreach ($value in $item.Values) {
     $bar = New-Object System.Windows.Shapes.Rectangle
-    $bar.Width = 19
-    $bar.Height = 5 + (($value - $min) / $spread) * 24
+    $bar.Width = 17
+    $bar.Height = 4 + (($value - $min) / $spread) * 18
     $bar.Margin = "0,0,4,0"
     $bar.RadiusX = 8
     $bar.RadiusY = 8
