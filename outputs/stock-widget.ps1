@@ -1,5 +1,5 @@
 ﻿param(
-  [string[]]$Symbols = @("MSFT", "AAPL", "NVDA", "TSLA", "AMD", "AMZN", "QQQ", "SMH", "SPACEX")
+  [string[]]$Symbols = @("AAPL", "NVDA", "TSLA", "AMZN", "QQQ", "SMH", "M", "SPACEX")
 )
 
 Add-Type -AssemblyName PresentationFramework
@@ -133,6 +133,7 @@ function Get-SymbolSubtext($symbol) {
   switch ($symbol.ToUpperInvariant()) {
     "QQQ" { return "Nasdaq 100 ETF" }
     "SMH" { return "Semiconductor ETF" }
+    "M" { return "Macy's" }
     "AMZN" { return "Amazon" }
     "SPACEX" { return "私募估值" }
     default { return "" }
