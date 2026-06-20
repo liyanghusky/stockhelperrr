@@ -34,7 +34,7 @@ Add-Type -TypeDefinition $signature
 $xaml = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Width="390" Height="448"
+        Width="390" Height="460"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
@@ -44,14 +44,15 @@ $xaml = @"
         Topmost="False">
   <Border CornerRadius="2"
           BorderThickness="1"
-          BorderBrush="#45E9E6DD"
-          Background="#B3050506"
+          BorderBrush="#88C8CDD0"
+          Background="#C8D7DBDC"
           Padding="14"
-          Opacity="0.86">
+          Opacity="0.88">
     <Border.Effect>
-      <DropShadowEffect BlurRadius="18" ShadowDepth="0" Opacity="0.26" Color="#000000"/>
+      <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.18" Color="#30383C"/>
     </Border.Effect>
     <Grid>
+
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="10"/>
@@ -62,37 +63,52 @@ $xaml = @"
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
+      <Canvas IsHitTestVisible="False" Opacity="0.34">
+        <Line X1="-20" Y1="44" X2="410" Y2="12" Stroke="#8EA0A4A5" StrokeThickness="1"/>
+        <Line X1="12" Y1="168" X2="392" Y2="78" Stroke="#72A0A4A5" StrokeThickness="1"/>
+        <Line X1="-10" Y1="300" X2="420" Y2="212" Stroke="#64A0A4A5" StrokeThickness="1"/>
+        <Line X1="86" Y1="-20" X2="236" Y2="462" Stroke="#5EA0A4A5" StrokeThickness="1"/>
+        <Line X1="304" Y1="16" X2="54" Y2="436" Stroke="#52A0A4A5" StrokeThickness="1"/>
+        <Ellipse Canvas.Left="260" Canvas.Top="24" Width="44" Height="44" Stroke="#62A0A4A5" StrokeThickness="1"/>
+        <Ellipse Canvas.Left="26" Canvas.Top="280" Width="70" Height="70" Stroke="#52A0A4A5" StrokeThickness="1"/>
+        <Ellipse Canvas.Left="306" Canvas.Top="336" Width="38" Height="38" Stroke="#58A0A4A5" StrokeThickness="1"/>
+        <Polygon Points="188,28 200,50 176,50" Fill="#70B6A15A" Stroke="#88A88E45" StrokeThickness="1"/>
+        <Polygon Points="220,54 232,75 208,75" Fill="#52B6A15A" Stroke="#70A88E45" StrokeThickness="1"/>
+        <Rectangle Canvas.Left="46" Canvas.Top="112" Width="5" Height="5" Fill="#8AA88E45"/>
+        <Rectangle Canvas.Left="332" Canvas.Top="194" Width="4" Height="4" Fill="#80A88E45"/>
+      </Canvas>
+
       <DockPanel Grid.Row="0">
         <StackPanel DockPanel.Dock="Left">
-          <TextBlock Text="STOCK WATCH" Foreground="#E9E6DD" FontSize="14" FontWeight="Black"/>
-          <TextBlock Text="HARKONNEN MARKET WIDGET" Foreground="#86847D" FontSize="10" FontWeight="Bold" Margin="0,3,0,0"/>
+          <TextBlock Text="STOCK WATCH" Foreground="#243036" FontSize="14" FontWeight="Black"/>
+          <TextBlock Text="IMPERIAL ICE MAP" Foreground="#6D7475" FontSize="10" FontWeight="Bold" Margin="0,3,0,0"/>
         </StackPanel>
-        <TextBlock x:Name="ClockText" Text="--" Foreground="#86847D" FontSize="11" HorizontalAlignment="Right"/>
+        <TextBlock x:Name="ClockText" Text="--" Foreground="#596368" FontSize="11" HorizontalAlignment="Right"/>
       </DockPanel>
 
-      <Border Grid.Row="2" BorderBrush="#2E2E32" BorderThickness="1" Background="#2AFFFFFF" Padding="10">
+      <Border Grid.Row="2" BorderBrush="#90B8BCC0" BorderThickness="1" Background="#66EEF0EF" Padding="10">
         <Grid>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
           <StackPanel>
-            <TextBlock Text="模拟组合" Foreground="#86847D" FontSize="10" FontWeight="Bold"/>
-            <TextBlock x:Name="PortfolioText" Text="$0.00" Foreground="#E9E6DD" FontSize="30" FontWeight="Black" Margin="0,4,0,0"/>
+            <TextBlock Text="模拟组合" Foreground="#6D7475" FontSize="10" FontWeight="Bold"/>
+            <TextBlock x:Name="PortfolioText" Text="$0.00" Foreground="#243036" FontSize="30" FontWeight="Black" Margin="0,4,0,0"/>
           </StackPanel>
           <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
-            <TextBlock x:Name="PortfolioChangeText" Text="+0.00%" Foreground="#E9E6DD" FontFamily="Bahnschrift SemiCondensed, Consolas" FontSize="20" FontWeight="Black" TextAlignment="Right"/>
-            <TextBlock Text="SESSION" Foreground="#86847D" FontSize="10" FontWeight="Bold" TextAlignment="Right"/>
+            <TextBlock x:Name="PortfolioChangeText" Text="+0.00%" Foreground="#7D6B35" FontFamily="Bahnschrift SemiCondensed, Consolas" FontSize="20" FontWeight="Black" TextAlignment="Right"/>
+            <TextBlock Text="SESSION" Foreground="#7D837F" FontSize="10" FontWeight="Bold" TextAlignment="Right"/>
           </StackPanel>
         </Grid>
       </Border>
 
       <StackPanel Grid.Row="4" x:Name="StockList"/>
 
-      <Border Grid.Row="6" CornerRadius="2" Background="#18FFFFFF" BorderBrush="#2E2E32" BorderThickness="1" Padding="9,7">
+      <Border Grid.Row="6" CornerRadius="3" Background="#50EEF0EF" BorderBrush="#8AB8BCC0" BorderThickness="1" Padding="9,7">
         <DockPanel>
-          <Ellipse x:Name="StatusDot" Width="8" Height="8" Fill="#E9E6DD" DockPanel.Dock="Left" Margin="0,0,8,0"/>
-          <TextBlock x:Name="StatusText" Text="每3分钟自动刷新；鼠标穿透；非置顶" Foreground="#86847D" FontSize="11"/>
+          <Ellipse x:Name="StatusDot" Width="8" Height="8" Fill="#B69A50" DockPanel.Dock="Left" Margin="0,0,8,0"/>
+          <TextBlock x:Name="StatusText" Text="每3分钟自动刷新；鼠标穿透；非置顶" Foreground="#5F696C" FontSize="11"/>
         </DockPanel>
       </Border>
     </Grid>
@@ -171,8 +187,8 @@ function Format-Money($value) {
 }
 
 function Get-ChangeBrush($isUp) {
-  if ($isUp) { return "#E9E6DD" }
-  return "#D86A5B"
+  if ($isUp) { return "#8A7436" }
+  return "#A65C54"
 }
 
 function Get-ChangeText($value) {
@@ -183,10 +199,10 @@ function Add-StockRow($item) {
   $isUp = $item.Change -ge 0
   $changeBrush = Get-ChangeBrush $isUp
   $row = New-Object System.Windows.Controls.Border
-  $row.CornerRadius = "2"
+  $row.CornerRadius = "3"
   $row.BorderThickness = "1"
-  $row.BorderBrush = if ($isUp) { "#4CE9E6DD" } else { "#66D86A5B" }
-  $row.Background = if ($isUp) { "#18E9E6DD" } else { "#18D86A5B" }
+  $row.BorderBrush = if ($isUp) { "#78B8BCC0" } else { "#88A65C54" }
+  $row.Background = if ($isUp) { "#48F3F4F1" } else { "#42EEE6E2" }
   $row.Padding = "8,5"
   $row.Margin = "0,0,0,5"
 
@@ -212,7 +228,7 @@ function Add-StockRow($item) {
 
   $name = New-Object System.Windows.Controls.TextBlock
   $name.Text = $item.Label
-  $name.Foreground = "#E9E6DD"
+  $name.Foreground = "#243036"
   $name.FontSize = 13
   $name.FontWeight = [System.Windows.FontWeights]::Black
   $name.FontFamily = "Bahnschrift SemiCondensed, Segoe UI"
@@ -221,7 +237,7 @@ function Add-StockRow($item) {
 
   $price = New-Object System.Windows.Controls.TextBlock
   $price.Text = if ($item.Subtext) { (Format-Money $item.Price) + "  " + $item.Subtext } else { Format-Money $item.Price }
-  $price.Foreground = "#86847D"
+  $price.Foreground = "#687174"
   $price.FontSize = 10
   $price.Margin = "72,2,0,0"
   $price.FontFamily = "Consolas, Segoe UI"
@@ -229,10 +245,10 @@ function Add-StockRow($item) {
   [System.Windows.Controls.Grid]::SetRow($price, 0)
 
   $changeBadge = New-Object System.Windows.Controls.Border
-  $changeBadge.CornerRadius = "2"
+  $changeBadge.CornerRadius = "3"
   $changeBadge.BorderThickness = "1"
   $changeBadge.BorderBrush = $changeBrush
-  $changeBadge.Background = if ($isUp) { "#18E9E6DD" } else { "#22D86A5B" }
+  $changeBadge.Background = if ($isUp) { "#40D8C896" } else { "#36D9B3AA" }
   $changeBadge.Padding = "7,1"
   $changeBadge.MinWidth = 78
   [System.Windows.Controls.Grid]::SetColumn($changeBadge, 2)
@@ -265,7 +281,7 @@ function Add-StockRow($item) {
     $bar.Margin = "0,0,3,0"
     $bar.RadiusX = 2
     $bar.RadiusY = 2
-    $bar.Fill = $changeBrush
+    $bar.Fill = if ($isUp) { "#B6A15A" } else { "#A65C54" }
     $bars.Children.Add($bar) | Out-Null
   }
 
@@ -290,7 +306,7 @@ function Update-Widget {
   $portfolioChangeText.Text = Get-ChangeText $avgChange
   $portfolioChangeText.Foreground = Get-ChangeBrush ($avgChange -ge 0)
   $clockText.Text = (Get-Date).ToString("HH:mm")
-  $statusText.Text = "每3分钟自动刷新；模拟行情；鼠标穿透"
+  $statusText.Text = "每3分钟刷新；冰原地图风格；鼠标穿透"
 }
 
 $window.Add_SourceInitialized({
@@ -315,3 +331,4 @@ $timer.Start()
 
 Update-Widget
 $window.ShowDialog() | Out-Null
+

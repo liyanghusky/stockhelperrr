@@ -13,3 +13,4 @@
 - Sharpened the Harkonnen desktop widget market readout with hard-edged change badges, higher-contrast up/down colors, narrow numeric typography and squared mini bars.
 - Updated the stock widget and default web watchlist to remove MSFT and AMD while keeping QQQ, SMH, SpaceX and adding ticker M.
 - Refined the stock widget density by restoring softer rounded edges while compressing row padding, spacing and mini bars so per-symbol moves read more clearly.
+- Restyled the stock desktop widget toward the provided pale imperial map reference with ice-gray translucency, fine cartographic lines, muted gold accents and dark slate market text.
