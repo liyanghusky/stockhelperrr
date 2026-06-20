@@ -81,7 +81,7 @@ $xaml = @"
             <TextBlock x:Name="PortfolioText" Text="$0.00" Foreground="#E9E6DD" FontSize="30" FontWeight="Black" Margin="0,4,0,0"/>
           </StackPanel>
           <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
-            <TextBlock x:Name="PortfolioChangeText" Text="+0.00%" Foreground="#E9E6DD" FontSize="18" FontWeight="Black" TextAlignment="Right"/>
+            <TextBlock x:Name="PortfolioChangeText" Text="+0.00%" Foreground="#F8F4E8" FontFamily="Bahnschrift SemiCondensed, Consolas" FontSize="20" FontWeight="Black" TextAlignment="Right"/>
             <TextBlock Text="SESSION" Foreground="#86847D" FontSize="10" FontWeight="Bold" TextAlignment="Right"/>
           </StackPanel>
         </Grid>
@@ -169,30 +169,51 @@ function Format-Money($value) {
   return "$" + $value.ToString("N2", [System.Globalization.CultureInfo]::GetCultureInfo("en-US"))
 }
 
+function Get-ChangeBrush($isUp) {
+  if ($isUp) { return "#F8F4E8" }
+  return "#FF5D4D"
+}
+
+function Get-ChangeText($value) {
+  return "{0}{1:N2}%" -f ($(if ($value -ge 0) { "+" } else { "" }), $value)
+}
+
 function Add-StockRow($item) {
   $isUp = $item.Change -ge 0
+  $changeBrush = Get-ChangeBrush $isUp
   $row = New-Object System.Windows.Controls.Border
-  $row.CornerRadius = "2"
+  $row.CornerRadius = "0"
   $row.BorderThickness = "1"
-  $row.BorderBrush = if ($isUp) { "#4CE9E6DD" } else { "#55B7B1A2" }
-  $row.Background = if ($isUp) { "#1FE9E6DD" } else { "#18B7B1A2" }
-  $row.Padding = "9,7"
+  $row.BorderBrush = if ($isUp) { "#66F8F4E8" } else { "#99FF5D4D" }
+  $row.Background = if ($isUp) { "#19000000" } else { "#220F0302" }
+  $row.Padding = "8,7"
   $row.Margin = "0,0,0,7"
 
   $grid = New-Object System.Windows.Controls.Grid
   $grid.RowDefinitions.Add((New-Object System.Windows.Controls.RowDefinition)) | Out-Null
   $grid.RowDefinitions.Add((New-Object System.Windows.Controls.RowDefinition)) | Out-Null
+  $accentCol = New-Object System.Windows.Controls.ColumnDefinition
+  $accentCol.Width = "4"
+  $grid.ColumnDefinitions.Add($accentCol) | Out-Null
   $grid.ColumnDefinitions.Add((New-Object System.Windows.Controls.ColumnDefinition)) | Out-Null
   $col2 = New-Object System.Windows.Controls.ColumnDefinition
   $col2.Width = "Auto"
   $grid.ColumnDefinitions.Add($col2) | Out-Null
+
+  $accent = New-Object System.Windows.Shapes.Rectangle
+  $accent.Width = 3
+  $accent.Margin = "0,1,7,1"
+  $accent.Fill = $changeBrush
+  [System.Windows.Controls.Grid]::SetColumn($accent, 0)
+  [System.Windows.Controls.Grid]::SetRowSpan($accent, 2)
 
   $name = New-Object System.Windows.Controls.TextBlock
   $name.Text = $item.Label
   $name.Foreground = "#E9E6DD"
   $name.FontSize = 14
   $name.FontWeight = [System.Windows.FontWeights]::Black
-  [System.Windows.Controls.Grid]::SetColumn($name, 0)
+  $name.FontFamily = "Bahnschrift SemiCondensed, Segoe UI"
+  [System.Windows.Controls.Grid]::SetColumn($name, 1)
   [System.Windows.Controls.Grid]::SetRow($name, 0)
 
   $price = New-Object System.Windows.Controls.TextBlock
@@ -200,22 +221,34 @@ function Add-StockRow($item) {
   $price.Foreground = "#86847D"
   $price.FontSize = 11
   $price.Margin = "82,2,0,0"
-  [System.Windows.Controls.Grid]::SetColumn($price, 0)
+  $price.FontFamily = "Consolas, Segoe UI"
+  [System.Windows.Controls.Grid]::SetColumn($price, 1)
   [System.Windows.Controls.Grid]::SetRow($price, 0)
 
+  $changeBadge = New-Object System.Windows.Controls.Border
+  $changeBadge.CornerRadius = "0"
+  $changeBadge.BorderThickness = "1,0,1,1"
+  $changeBadge.BorderBrush = $changeBrush
+  $changeBadge.Background = if ($isUp) { "#18F8F4E8" } else { "#24FF5D4D" }
+  $changeBadge.Padding = "8,2"
+  $changeBadge.MinWidth = 74
+  [System.Windows.Controls.Grid]::SetColumn($changeBadge, 2)
+  [System.Windows.Controls.Grid]::SetRow($changeBadge, 0)
+
   $change = New-Object System.Windows.Controls.TextBlock
-  $change.Text = ("{0}{1:N2}%" -f ($(if ($isUp) { "+" } else { "" }), $item.Change))
-  $change.Foreground = if ($isUp) { "#E9E6DD" } else { "#B7B1A2" }
-  $change.FontSize = 14
+  $change.Text = Get-ChangeText $item.Change
+  $change.Foreground = $changeBrush
+  $change.FontFamily = "Bahnschrift SemiCondensed, Consolas"
+  $change.FontSize = 15
   $change.FontWeight = [System.Windows.FontWeights]::Black
   $change.TextAlignment = [System.Windows.TextAlignment]::Right
-  [System.Windows.Controls.Grid]::SetColumn($change, 1)
-  [System.Windows.Controls.Grid]::SetRow($change, 0)
+  $changeBadge.Child = $change
 
   $bars = New-Object System.Windows.Controls.StackPanel
   $bars.Orientation = [System.Windows.Controls.Orientation]::Horizontal
   $bars.VerticalAlignment = [System.Windows.VerticalAlignment]::Bottom
   $bars.Margin = "0,7,0,0"
+  [System.Windows.Controls.Grid]::SetColumn($bars, 1)
   [System.Windows.Controls.Grid]::SetColumnSpan($bars, 2)
   [System.Windows.Controls.Grid]::SetRow($bars, 1)
 
@@ -227,15 +260,16 @@ function Add-StockRow($item) {
     $bar.Width = 17
     $bar.Height = 4 + (($value - $min) / $spread) * 18
     $bar.Margin = "0,0,4,0"
-    $bar.RadiusX = 8
-    $bar.RadiusY = 8
-    $bar.Fill = if ($isUp) { "#DDE9E6DD" } else { "#CCB7B1A2" }
+    $bar.RadiusX = 0
+    $bar.RadiusY = 0
+    $bar.Fill = $changeBrush
     $bars.Children.Add($bar) | Out-Null
   }
 
+  $grid.Children.Add($accent) | Out-Null
   $grid.Children.Add($name) | Out-Null
   $grid.Children.Add($price) | Out-Null
-  $grid.Children.Add($change) | Out-Null
+  $grid.Children.Add($changeBadge) | Out-Null
   $grid.Children.Add($bars) | Out-Null
   $row.Child = $grid
   $stockList.Children.Add($row) | Out-Null
@@ -250,8 +284,8 @@ function Update-Widget {
   $total = ($stockItems | Measure-Object -Property Price -Sum).Sum * 8
   $avgChange = ($stockItems | Measure-Object -Property Change -Average).Average
   $portfolioText.Text = Format-Money $total
-  $portfolioChangeText.Text = "{0}{1:N2}%" -f ($(if ($avgChange -ge 0) { "+" } else { "" }), $avgChange)
-  $portfolioChangeText.Foreground = if ($avgChange -ge 0) { "#E9E6DD" } else { "#B7B1A2" }
+  $portfolioChangeText.Text = Get-ChangeText $avgChange
+  $portfolioChangeText.Foreground = Get-ChangeBrush ($avgChange -ge 0)
   $clockText.Text = (Get-Date).ToString("HH:mm")
   $statusText.Text = "每3分钟自动刷新；模拟行情；鼠标穿透"
 }
