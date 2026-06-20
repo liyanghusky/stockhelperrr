@@ -18,7 +18,7 @@ Stock features:
 
 - Add and remove stock symbols
 - Switch ranges: 1D, 1W, 1M, 3M, 1Y
-- 15 themes: Trader, Terminal, Newspaper, Glass, Pastel, Aurora, Ink, Candy, Brutal, Mono, Luxury, Cyber, Zen, Bloom, Cockpit
+- 2 visual systems: Harkonnen and Wabi-Sabi
 - Offline deterministic demo data, no API key required
 
 ## World Cup tracker

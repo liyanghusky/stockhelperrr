@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Stock Five - Windows Local</title>
+  <title>Stock Watch - Harkonnen / Wabi-Sabi</title>
   <style>
     :root {
       color-scheme: light;
@@ -337,6 +337,50 @@
       --chrome: rgba(18, 23, 34, .9);
     }
 
+    body[data-theme="harkonnen"] {
+      color-scheme: dark;
+      --bg: #050506;
+      --panel: #101012;
+      --panel-2: #0d0d0f;
+      --text: #e9e6dd;
+      --muted: #86847d;
+      --line: #26262a;
+      --accent: #e9e6dd;
+      --accent-2: #5d5b55;
+      --good: #e9e6dd;
+      --bad: #b7b1a2;
+      --shadow: 0 22px 70px rgba(0, 0, 0, .46);
+      --radius: 0;
+      --font: "Oswald", "Noto Sans SC", "Segoe UI", Arial, sans-serif;
+      --texture:
+        radial-gradient(70vw 70vw at 86% -24%, rgba(233, 230, 221, .12), transparent 46%),
+        repeating-linear-gradient(90deg, rgba(233, 230, 221, .045) 0 1px, transparent 1px 76px),
+        repeating-linear-gradient(0deg, rgba(233, 230, 221, .035) 0 1px, transparent 1px 76px);
+      --texture-opacity: 1;
+      --chrome: rgba(5, 5, 6, .92);
+    }
+
+    body[data-theme="wabi"] {
+      --bg: #f3efe6;
+      --panel: #fffaf0;
+      --panel-2: #ebe5d8;
+      --text: #23211c;
+      --muted: #6b665b;
+      --line: #cdc6b6;
+      --accent: #9c6b4f;
+      --accent-2: #3b4a5a;
+      --good: #4b7f52;
+      --bad: #9b4334;
+      --shadow: 0 22px 42px rgba(35, 33, 28, .10);
+      --radius: 2px;
+      --font: "Noto Serif SC", "Noto Serif", Georgia, serif;
+      --texture:
+        radial-gradient(rgba(120, 110, 90, .045) 1px, transparent 1px),
+        linear-gradient(135deg, rgba(156, 107, 79, .08), transparent 34%);
+      --texture-opacity: 1;
+      --chrome: rgba(243, 239, 230, .88);
+    }
+
     .shell {
       width: min(1440px, 100%);
       margin: 0 auto;
@@ -345,6 +389,123 @@
       grid-template-columns: 320px minmax(0, 1fr);
       position: relative;
       z-index: 1;
+    }
+
+    body[data-theme="harkonnen"] .shell {
+      width: min(1500px, 100%);
+    }
+
+    body[data-theme="harkonnen"] .sidebar,
+    body[data-theme="harkonnen"] .chart-card,
+    body[data-theme="harkonnen"] .details-card,
+    body[data-theme="harkonnen"] .stage-main,
+    body[data-theme="harkonnen"] .stage-side,
+    body[data-theme="harkonnen"] .map-tile,
+    body[data-theme="harkonnen"] .theme-button,
+    body[data-theme="harkonnen"] .range-button,
+    body[data-theme="harkonnen"] .metric,
+    body[data-theme="harkonnen"] .rail-tile,
+    body[data-theme="harkonnen"] .watch-row,
+    body[data-theme="harkonnen"] input,
+    body[data-theme="harkonnen"] .primary,
+    body[data-theme="harkonnen"] .icon-button {
+      border-radius: 0;
+      box-shadow: none;
+      text-transform: uppercase;
+    }
+
+    body[data-theme="harkonnen"] .brand h1,
+    body[data-theme="harkonnen"] .hero-title,
+    body[data-theme="harkonnen"] .portfolio-value,
+    body[data-theme="harkonnen"] .selected-symbol,
+    body[data-theme="harkonnen"] .big-price,
+    body[data-theme="harkonnen"] .map-symbol {
+      font-family: Impact, "Arial Black", "Noto Sans SC", sans-serif;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    body[data-theme="harkonnen"] .mark {
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--accent) 0 18%, transparent 20%);
+      color: transparent;
+      border-color: var(--accent);
+    }
+
+    body[data-theme="harkonnen"] .theme-button.active,
+    body[data-theme="harkonnen"] .range-button.active,
+    body[data-theme="harkonnen"] .mode-button.active,
+    body[data-theme="harkonnen"] .primary {
+      color: var(--bg);
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    body[data-theme="harkonnen"] .signature-art {
+      filter: grayscale(1) contrast(1.45);
+    }
+
+    body[data-theme="harkonnen"] .portfolio-value {
+      font-size: clamp(38px, 4.1vw, 56px);
+      white-space: nowrap;
+    }
+
+    body[data-theme="wabi"] .shell {
+      max-width: 1320px;
+      grid-template-columns: 300px minmax(0, 1fr);
+    }
+
+    body[data-theme="wabi"] .sidebar,
+    body[data-theme="wabi"] .chart-card,
+    body[data-theme="wabi"] .details-card,
+    body[data-theme="wabi"] .stage-main,
+    body[data-theme="wabi"] .stage-side,
+    body[data-theme="wabi"] .map-tile,
+    body[data-theme="wabi"] .theme-button,
+    body[data-theme="wabi"] .range-button,
+    body[data-theme="wabi"] .metric,
+    body[data-theme="wabi"] .rail-tile,
+    body[data-theme="wabi"] .watch-row,
+    body[data-theme="wabi"] input,
+    body[data-theme="wabi"] .primary,
+    body[data-theme="wabi"] .icon-button {
+      border-radius: 2px;
+      box-shadow: none;
+    }
+
+    body[data-theme="wabi"] .brand {
+      align-items: flex-start;
+    }
+
+    body[data-theme="wabi"] .mark {
+      border-radius: 50%;
+      border-color: var(--text);
+      border-right-color: transparent;
+      background: transparent;
+      color: transparent;
+      transform: rotate(-24deg);
+    }
+
+    body[data-theme="wabi"] .hero-title,
+    body[data-theme="wabi"] .selected-symbol,
+    body[data-theme="wabi"] .portfolio-value {
+      font-weight: 400;
+      letter-spacing: .04em;
+    }
+
+    body[data-theme="wabi"] .portfolio-value {
+      font-size: clamp(32px, 3.8vw, 46px);
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    body[data-theme="wabi"] .theme-button.active,
+    body[data-theme="wabi"] .range-button.active,
+    body[data-theme="wabi"] .mode-button.active,
+    body[data-theme="wabi"] .primary {
+      background: var(--text);
+      border-color: var(--text);
+      color: var(--bg);
     }
 
     .sidebar {
@@ -1418,14 +1579,14 @@
     }
   </style>
 </head>
-<body data-theme="trader">
+<body data-theme="harkonnen">
   <div class="shell">
     <aside class="sidebar">
       <div class="brand">
-        <div class="mark">S5</div>
+        <div class="mark">SW</div>
         <div>
-          <h1>Stock Five</h1>
-          <p class="sub">Windows localhost watchlist</p>
+          <h1>Stock Watch</h1>
+          <p class="sub">Harkonnen / Wabi-Sabi market surface</p>
         </div>
       </div>
 
@@ -1440,8 +1601,8 @@
     <main class="main">
       <header class="topbar">
         <div>
-          <h2 class="hero-title" id="themeHeadline">Focused trading desk</h2>
-          <p class="sub" id="themeDescription">Compact, dark, data-first interface for fast scanning.</p>
+          <h2 class="hero-title" id="themeHeadline">Black sun market desk</h2>
+          <p class="sub" id="themeDescription">A severe watchlist surface inspired by Harkonnen archive geometry.</p>
         </div>
         <div class="top-actions">
           <div class="mode-switch" id="modeSwitch" aria-label="View mode"></div>
@@ -1561,21 +1722,22 @@
 
   <script>
     const themes = [
-      { id: "trader", group: "Fancy", name: "Trader", headline: "Focused trading desk", desc: "Dense, dark, data-first interface for fast scanning.", colors: ["#181b22", "#2f80ed", "#27ae60"] },
-      { id: "terminal", group: "Fancy", name: "Terminal", headline: "Market command line", desc: "Monospace, high contrast, scan-line market board.", colors: ["#06120f", "#36e69b", "#e8d36f"] },
-      { id: "newspaper", group: "Minimal", name: "Newspaper", headline: "Financial paper", desc: "Editorial, calm, old-school market reading room.", colors: ["#fffaf0", "#8b2f25", "#194f68"] },
-      { id: "glass", group: "Fancy", name: "Glass", headline: "Frosted market lab", desc: "Translucent panels with layered light and cool depth.", colors: ["#101820", "#66d9ff", "#ffbf69"] },
-      { id: "pastel", group: "Minimal", name: "Pastel", headline: "Soft portfolio board", desc: "Light, friendly, colorful watchlist for everyday checking.", colors: ["#ffffff", "#6b78d6", "#d06c8d"] },
-      { id: "aurora", group: "Fancy", name: "Aurora", headline: "Northern lights ticker", desc: "Deep teal market glow with soft electric accents.", colors: ["#08151f", "#5ce1c8", "#ff8fb3"] },
-      { id: "ink", group: "Minimal", name: "Ink", headline: "Sharp black ink", desc: "Quiet white canvas, hard contrast, print-like precision.", colors: ["#ffffff", "#111111", "#bd3326"] },
-      { id: "candy", group: "Fancy", name: "Candy", headline: "Pop portfolio", desc: "Bright consumer-app energy with playful color tension.", colors: ["#fff7fb", "#ff5d8f", "#00a8cc"] },
-      { id: "brutal", group: "Fancy", name: "Brutal", headline: "Brutalist exchange", desc: "Loud blocks, heavy borders, unapologetic market controls.", colors: ["#f0f000", "#0057ff", "#ff2a1f"] },
-      { id: "mono", group: "Minimal", name: "Mono", headline: "Analyst grayscale", desc: "Restrained monochrome workspace with precise accents.", colors: ["#fdfdfd", "#495057", "#0b7285"] },
-      { id: "luxury", group: "Minimal", name: "Luxury", headline: "Private bank desk", desc: "Dark warm surfaces, gold signals, executive calm.", colors: ["#191816", "#d6ad60", "#8ab4f8"] },
-      { id: "cyber", group: "Fancy", name: "Cyber", headline: "Neon price grid", desc: "Electric contrast for a future-facing trading screen.", colors: ["#09081f", "#00e5ff", "#ff2bd6"] },
-      { id: "zen", group: "Minimal", name: "Zen", headline: "Quiet capital", desc: "Soft green workspace built for slower portfolio reviews.", colors: ["#fbfcf8", "#4b7f52", "#9c6b3f"] },
-      { id: "bloom", group: "Minimal", name: "Bloom", headline: "Warm growth board", desc: "Fresh editorial warmth for approachable market tracking.", colors: ["#fff8f2", "#db5a42", "#7c61c9"] },
-      { id: "cockpit", group: "Fancy", name: "Cockpit", headline: "Instrument cockpit", desc: "Dark utility panels with amber command emphasis.", colors: ["#121722", "#ffb000", "#45a3ff"] }
+      {
+        id: "harkonnen",
+        group: "Giedi Prime",
+        name: "哈克南",
+        headline: "Black sun market desk",
+        desc: "黑白、冷硬、压迫感强的行情界面，保留快速扫盘密度。",
+        colors: ["#050506", "#e9e6dd", "#5d5b55"]
+      },
+      {
+        id: "wabi",
+        group: "Wabi-Sabi",
+        name: "侘寂",
+        headline: "Quiet capital shelf",
+        desc: "纸张质感、留白、细线和低饱和配色，适合慢速复盘。",
+        colors: ["#f3efe6", "#9c6b4f", "#3b4a5a"]
+      }
     ];
 
     const ranges = [
@@ -1604,7 +1766,7 @@
     };
 
     let state = {
-      theme: "trader",
+      theme: "harkonnen",
       view: "studio",
       range: "1M",
       selected: "MSFT",
@@ -1653,7 +1815,7 @@
     }
 
     function renderThemes() {
-      const groups = ["Minimal", "Fancy"];
+      const groups = [...new Set(themes.map((theme) => theme.group))];
       $("themeList").innerHTML = groups.map((group) => `
         <div class="theme-section">
           <div class="theme-section-title">${group}</div>
@@ -1769,9 +1931,9 @@
       $("signalInsight").textContent = selected.change >= 0 ? "Accumulation" : "Cooling";
       $("volatilityInsight").textContent = ((selected.high - selected.low) / selected.last * 100).toFixed(1) + "%";
       $("moodInsight").textContent = mood;
-      $("styleThesis").textContent = theme.group === "Fancy"
-        ? `${theme.name} pushes the interface toward a stronger visual identity while keeping the trading controls close.`
-        : `${theme.name} keeps the surface calm, precise and editorial so the data can breathe.`;
+      $("styleThesis").textContent = theme.id === "harkonnen"
+        ? "哈克南风格把行情界面压进黑白冷光、硬边网格和高密度信息里，适合快速扫盘。"
+        : "侘寂风格用纸感、留白和克制的线条放慢阅读节奏，适合安静复盘。";
       $("styleTags").innerHTML = styleTraits(theme).map((trait) => `<span class="style-tag">${trait}</span>`).join("");
       $("signatureCaption").textContent = theme.group + " system";
       $("signatureName").textContent = theme.name;
@@ -1833,6 +1995,8 @@
 
     function styleTraits(theme) {
       const traits = {
+        harkonnen: ["black sun", "monolith", "severe"],
+        wabi: ["washi", "quiet", "empty space"],
         trader: ["dense", "dark", "scan"],
         terminal: ["mono", "grid", "signal"],
         newspaper: ["editorial", "paper", "calm"],
@@ -1983,7 +2147,7 @@
       const theme = themes.find((item) => item.id === state.theme);
       document.body.dataset.theme = state.theme;
       document.body.dataset.view = state.view;
-      document.title = "Stock Five - " + theme.name;
+      document.title = "Stock Watch - " + theme.name;
       renderThemes();
       renderModes();
       renderRanges();
