@@ -151,38 +151,96 @@ function Get-SymbolSubtext($symbol) {
     "SMH" { return "Semiconductor ETF" }
     "M" { return "Macy's" }
     "AMZN" { return "Amazon" }
-    "SPACEX" { return "私募估值" }
+    "SPACEX" { return "私募估值 / N/A" }
     default { return "" }
+  }
+}
+
+function ConvertTo-DoubleOrNull($value) {
+  if ($null -eq $value) { return $null }
+  try {
+    return [double]$value
+  } catch {
+    return $null
   }
 }
 
 function Get-StockSnapshot($symbol) {
   $symbol = $symbol.ToUpperInvariant()
-  $seed = Get-SymbolHash $symbol
-  $slot = [Math]::Floor(((Get-Date).TimeOfDay.TotalMinutes) / 3)
-  $base = 45 + ($seed % 260)
-  $values = New-Object System.Collections.Generic.List[double]
-  $price = [double]$base
-  for ($i = 0; $i -lt 14; $i++) {
-    $wave = [Math]::Sin(($i + $seed + $slot) / 4.8) * (1.2 + ($seed % 7) / 5)
-    $bump = (Get-SeededNoise ($seed + $i * 13 + $slot * 19)) - 0.48
-    $price = [Math]::Max(5, $price + $wave * 0.36 + $bump * 2.1)
-    $values.Add([Math]::Round($price, 2))
+  $label = Get-SymbolLabel $symbol
+  $subtext = Get-SymbolSubtext $symbol
+
+  if ($symbol -eq "SPACEX") {
+    return [pscustomobject]@{
+      Symbol = $symbol
+      Label = $label
+      Subtext = $subtext
+      Price = $null
+      Change = 0
+      Values = @()
+      IsLive = $false
+      Note = "非公开交易"
+    }
   }
-  $first = $values[0]
-  $last = $values[$values.Count - 1]
-  $change = if ($first -ne 0) { (($last - $first) / $first) * 100 } else { 0 }
-  return [pscustomobject]@{
-    Symbol = $symbol
-    Label = Get-SymbolLabel $symbol
-    Subtext = Get-SymbolSubtext $symbol
-    Price = $last
-    Change = $change
-    Values = $values
+
+  $encoded = [System.Uri]::EscapeDataString($symbol)
+  $uri = "https://query1.finance.yahoo.com/v8/finance/chart/$encoded?range=1d&interval=5m"
+  try {
+    $response = Invoke-RestMethod -Uri $uri -Headers @{ "User-Agent" = "Mozilla/5.0" } -TimeoutSec 12
+    if ($null -ne $response.chart.error -or $response.chart.result.Count -lt 1) {
+      throw "Yahoo Finance returned no chart data for $symbol"
+    }
+
+    $result = $response.chart.result[0]
+    $meta = $result.meta
+    $quote = $result.indicators.quote[0]
+    $closes = @($quote.close | ForEach-Object { ConvertTo-DoubleOrNull $_ } | Where-Object { $null -ne $_ })
+    $values = @($closes | Select-Object -Last 14 | ForEach-Object { [Math]::Round($_, 2) })
+    $price = ConvertTo-DoubleOrNull $meta.regularMarketPrice
+    if ($null -eq $price -and $values.Count -gt 0) {
+      $price = $values[$values.Count - 1]
+    }
+
+    $previousClose = ConvertTo-DoubleOrNull $meta.previousClose
+    if ($null -eq $previousClose) {
+      $previousClose = ConvertTo-DoubleOrNull $meta.chartPreviousClose
+    }
+    if ($null -eq $previousClose -and $values.Count -gt 0) {
+      $previousClose = $values[0]
+    }
+
+    $change = if ($null -ne $price -and $null -ne $previousClose -and $previousClose -ne 0) {
+      (($price - $previousClose) / $previousClose) * 100
+    } else {
+      0
+    }
+
+    return [pscustomobject]@{
+      Symbol = $symbol
+      Label = $label
+      Subtext = if ($meta.shortName) { [string]$meta.shortName } else { $subtext }
+      Price = if ($null -ne $price) { [Math]::Round($price, 2) } else { $null }
+      Change = $change
+      Values = $values
+      IsLive = $true
+      Note = "Yahoo Finance"
+    }
+  } catch {
+    return [pscustomobject]@{
+      Symbol = $symbol
+      Label = $label
+      Subtext = if ($subtext) { $subtext } else { "行情暂不可用" }
+      Price = $null
+      Change = 0
+      Values = @()
+      IsLive = $false
+      Note = "读取失败"
+    }
   }
 }
 
 function Format-Money($value) {
+  if ($null -eq $value) { return "N/A" }
   return "$" + $value.ToString("N2", [System.Globalization.CultureInfo]::GetCultureInfo("en-US"))
 }
 
@@ -196,7 +254,7 @@ function Get-ChangeText($value) {
 }
 
 function Add-StockRow($item) {
-  $isUp = $item.Change -ge 0
+  $isUp = ($item.Change -ge 0)
   $changeBrush = Get-ChangeBrush $isUp
   $row = New-Object System.Windows.Controls.Border
   $row.CornerRadius = "3"
@@ -236,7 +294,8 @@ function Add-StockRow($item) {
   [System.Windows.Controls.Grid]::SetRow($name, 0)
 
   $price = New-Object System.Windows.Controls.TextBlock
-  $price.Text = if ($item.Subtext) { (Format-Money $item.Price) + "  " + $item.Subtext } else { Format-Money $item.Price }
+  $sourceMark = if ($item.IsLive) { "" } else { "  " + $item.Note }
+  $price.Text = if ($item.Subtext) { (Format-Money $item.Price) + "  " + $item.Subtext + $sourceMark } else { (Format-Money $item.Price) + $sourceMark }
   $price.Foreground = "#687174"
   $price.FontSize = 10
   $price.Margin = "72,2,0,0"
@@ -271,10 +330,14 @@ function Add-StockRow($item) {
   [System.Windows.Controls.Grid]::SetColumnSpan($bars, 2)
   [System.Windows.Controls.Grid]::SetRow($bars, 1)
 
-  $min = ($item.Values | Measure-Object -Minimum).Minimum
-  $max = ($item.Values | Measure-Object -Maximum).Maximum
+  $barValues = @($item.Values)
+  if ($barValues.Count -eq 0) {
+    $barValues = @(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+  }
+  $min = ($barValues | Measure-Object -Minimum).Minimum
+  $max = ($barValues | Measure-Object -Maximum).Maximum
   $spread = [Math]::Max(0.01, $max - $min)
-  foreach ($value in $item.Values) {
+  foreach ($value in $barValues) {
     $bar = New-Object System.Windows.Shapes.Rectangle
     $bar.Width = 16
     $bar.Height = 3 + (($value - $min) / $spread) * 10
@@ -300,13 +363,15 @@ function Update-Widget {
   foreach ($item in $stockItems) {
     Add-StockRow $item
   }
-  $total = ($stockItems | Measure-Object -Property Price -Sum).Sum * 8
-  $avgChange = ($stockItems | Measure-Object -Property Change -Average).Average
+  $pricedItems = @($stockItems | Where-Object { $null -ne $_.Price })
+  $total = if ($pricedItems.Count -gt 0) { ($pricedItems | Measure-Object -Property Price -Sum).Sum * 8 } else { $null }
+  $avgChange = if ($pricedItems.Count -gt 0) { ($pricedItems | Measure-Object -Property Change -Average).Average } else { 0 }
   $portfolioText.Text = Format-Money $total
   $portfolioChangeText.Text = Get-ChangeText $avgChange
   $portfolioChangeText.Foreground = Get-ChangeBrush ($avgChange -ge 0)
   $clockText.Text = (Get-Date).ToString("HH:mm")
-  $statusText.Text = "每3分钟刷新；冰原地图风格；鼠标穿透"
+  $liveCount = @($stockItems | Where-Object { $_.IsLive }).Count
+  $statusText.Text = "实时行情 $liveCount/$($stockItems.Count)；每3分钟刷新；Yahoo Finance"
 }
 
 $window.Add_SourceInitialized({
