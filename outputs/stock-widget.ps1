@@ -7,6 +7,23 @@ Add-Type -AssemblyName PresentationCore
 Add-Type -AssemblyName WindowsBase
 Add-Type -AssemblyName System.Windows.Forms
 
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+$cacheDirectory = Join-Path $env:LOCALAPPDATA "StockWidget"
+$cachePath = Join-Path $cacheDirectory "quotes.json"
+$script:quoteCache = @{}
+
+if (Test-Path -LiteralPath $cachePath) {
+  try {
+    $cachedJson = Get-Content -LiteralPath $cachePath -Raw | ConvertFrom-Json
+    foreach ($property in $cachedJson.PSObject.Properties) {
+      $script:quoteCache[$property.Name] = $property.Value
+    }
+  } catch {
+    $script:quoteCache = @{}
+  }
+}
+
 $signature = @"
 using System;
 using System.Runtime.InteropServices;
@@ -165,6 +182,37 @@ function ConvertTo-DoubleOrNull($value) {
   }
 }
 
+function Save-QuoteCache {
+  try {
+    New-Item -ItemType Directory -Path $cacheDirectory -Force | Out-Null
+    $script:quoteCache | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $cachePath -Encoding UTF8
+  } catch {
+    # A cache write failure should never stop live quote updates.
+  }
+}
+
+function Get-YahooChart($symbol) {
+  $encoded = [System.Uri]::EscapeDataString($symbol)
+  $errors = @()
+  foreach ($hostName in @("query1.finance.yahoo.com", "query2.finance.yahoo.com")) {
+    $uri = "https://$hostName/v8/finance/chart/${encoded}?range=1d&interval=5m"
+    try {
+      $response = Invoke-RestMethod `
+        -Uri $uri `
+        -Headers @{ "User-Agent" = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) StockWidget/1.0"; "Accept" = "application/json" } `
+        -TimeoutSec 15
+      if ($null -eq $response.chart.error -and @($response.chart.result).Count -gt 0) {
+        return $response.chart.result[0]
+      }
+      $errors += "$hostName returned no data"
+    } catch {
+      $errors += "$hostName`: $($_.Exception.Message)"
+      Start-Sleep -Milliseconds 250
+    }
+  }
+  throw ($errors -join " | ")
+}
+
 function Get-StockSnapshot($symbol) {
   $symbol = $symbol.ToUpperInvariant()
   $label = Get-SymbolLabel $symbol
@@ -183,15 +231,8 @@ function Get-StockSnapshot($symbol) {
     }
   }
 
-  $encoded = [System.Uri]::EscapeDataString($symbol)
-  $uri = "https://query1.finance.yahoo.com/v8/finance/chart/$encoded?range=1d&interval=5m"
   try {
-    $response = Invoke-RestMethod -Uri $uri -Headers @{ "User-Agent" = "Mozilla/5.0" } -TimeoutSec 12
-    if ($null -ne $response.chart.error -or $response.chart.result.Count -lt 1) {
-      throw "Yahoo Finance returned no chart data for $symbol"
-    }
-
-    $result = $response.chart.result[0]
+    $result = Get-YahooChart $symbol
     $meta = $result.meta
     $quote = $result.indicators.quote[0]
     $closes = @($quote.close | ForEach-Object { ConvertTo-DoubleOrNull $_ } | Where-Object { $null -ne $_ })
@@ -215,7 +256,7 @@ function Get-StockSnapshot($symbol) {
       0
     }
 
-    return [pscustomobject]@{
+    $snapshot = [pscustomobject]@{
       Symbol = $symbol
       Label = $label
       Subtext = if ($meta.shortName) { [string]$meta.shortName } else { $subtext }
@@ -224,8 +265,34 @@ function Get-StockSnapshot($symbol) {
       Values = $values
       IsLive = $true
       Note = "Yahoo Finance"
+      Error = ""
     }
+    $script:quoteCache[$symbol] = [pscustomobject]@{
+      Symbol = $snapshot.Symbol
+      Label = $snapshot.Label
+      Subtext = $snapshot.Subtext
+      Price = $snapshot.Price
+      Change = $snapshot.Change
+      Values = $snapshot.Values
+      SavedAt = (Get-Date).ToString("o")
+    }
+    return $snapshot
   } catch {
+    $errorMessage = $_.Exception.Message
+    if ($script:quoteCache.ContainsKey($symbol)) {
+      $cached = $script:quoteCache[$symbol]
+      return [pscustomobject]@{
+        Symbol = $symbol
+        Label = $label
+        Subtext = [string]$cached.Subtext
+        Price = ConvertTo-DoubleOrNull $cached.Price
+        Change = ConvertTo-DoubleOrNull $cached.Change
+        Values = @($cached.Values)
+        IsLive = $false
+        Note = "缓存"
+        Error = $errorMessage
+      }
+    }
     return [pscustomobject]@{
       Symbol = $symbol
       Label = $label
@@ -235,6 +302,7 @@ function Get-StockSnapshot($symbol) {
       Values = @()
       IsLive = $false
       Note = "读取失败"
+      Error = $errorMessage
     }
   }
 }
@@ -359,6 +427,7 @@ function Add-StockRow($item) {
 
 function Update-Widget {
   $stockItems = @($Symbols | ForEach-Object { Get-StockSnapshot $_.ToUpperInvariant() })
+  Save-QuoteCache
   $stockList.Children.Clear()
   foreach ($item in $stockItems) {
     Add-StockRow $item
@@ -371,7 +440,15 @@ function Update-Widget {
   $portfolioChangeText.Foreground = Get-ChangeBrush ($avgChange -ge 0)
   $clockText.Text = (Get-Date).ToString("HH:mm")
   $liveCount = @($stockItems | Where-Object { $_.IsLive }).Count
-  $statusText.Text = "实时行情 $liveCount/$($stockItems.Count)；每3分钟刷新；Yahoo Finance"
+  $cacheCount = @($stockItems | Where-Object { -not $_.IsLive -and $_.Note -eq "缓存" }).Count
+  if ($liveCount -gt 0) {
+    $statusText.Text = "实时 $liveCount/$($stockItems.Count)；缓存 $cacheCount；每3分钟刷新"
+  } else {
+    $firstError = @($stockItems | Where-Object { $_.Error } | Select-Object -First 1)
+    $reason = if ($firstError.Count -gt 0) { $firstError[0].Error } else { "无可用行情" }
+    if ($reason.Length -gt 38) { $reason = $reason.Substring(0, 38) + "..." }
+    $statusText.Text = "实时连接失败；缓存 $cacheCount；$reason"
+  }
 }
 
 $window.Add_SourceInitialized({
