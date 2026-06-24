@@ -1,5 +1,5 @@
 ﻿param(
-  [string[]]$Symbols = @("AAPL", "NVDA", "TSLA", "AMZN", "QQQ", "SMH", "M", "SPACEX")
+  [string[]]$Symbols = @("SPCX", "^GSPC", "AAPL", "NVDA", "TSLA", "AMZN", "QQQ", "SMH", "M")
 )
 
 Add-Type -AssemblyName PresentationFramework
@@ -51,7 +51,7 @@ Add-Type -TypeDefinition $signature
 $xaml = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Width="390" Height="460"
+        Width="440" Height="620"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
@@ -59,14 +59,14 @@ $xaml = @"
         ShowInTaskbar="False"
         ShowActivated="False"
         Topmost="False">
-  <Border CornerRadius="2"
-          BorderThickness="1"
-          BorderBrush="#88C8CDD0"
-          Background="#C8D7DBDC"
-          Padding="14"
-          Opacity="0.88">
+  <Border CornerRadius="1"
+          BorderThickness="2"
+          BorderBrush="#A66E1717"
+          Background="#EB0B0B0C"
+          Padding="15"
+          Opacity="0.96">
     <Border.Effect>
-      <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.18" Color="#30383C"/>
+      <DropShadowEffect BlurRadius="24" ShadowDepth="0" Opacity="0.55" Color="#000000"/>
     </Border.Effect>
     <Grid>
 
@@ -80,52 +80,48 @@ $xaml = @"
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
-      <Canvas IsHitTestVisible="False" Opacity="0.34">
-        <Line X1="-20" Y1="44" X2="410" Y2="12" Stroke="#8EA0A4A5" StrokeThickness="1"/>
-        <Line X1="12" Y1="168" X2="392" Y2="78" Stroke="#72A0A4A5" StrokeThickness="1"/>
-        <Line X1="-10" Y1="300" X2="420" Y2="212" Stroke="#64A0A4A5" StrokeThickness="1"/>
-        <Line X1="86" Y1="-20" X2="236" Y2="462" Stroke="#5EA0A4A5" StrokeThickness="1"/>
-        <Line X1="304" Y1="16" X2="54" Y2="436" Stroke="#52A0A4A5" StrokeThickness="1"/>
-        <Ellipse Canvas.Left="260" Canvas.Top="24" Width="44" Height="44" Stroke="#62A0A4A5" StrokeThickness="1"/>
-        <Ellipse Canvas.Left="26" Canvas.Top="280" Width="70" Height="70" Stroke="#52A0A4A5" StrokeThickness="1"/>
-        <Ellipse Canvas.Left="306" Canvas.Top="336" Width="38" Height="38" Stroke="#58A0A4A5" StrokeThickness="1"/>
-        <Polygon Points="188,28 200,50 176,50" Fill="#70B6A15A" Stroke="#88A88E45" StrokeThickness="1"/>
-        <Polygon Points="220,54 232,75 208,75" Fill="#52B6A15A" Stroke="#70A88E45" StrokeThickness="1"/>
-        <Rectangle Canvas.Left="46" Canvas.Top="112" Width="5" Height="5" Fill="#8AA88E45"/>
-        <Rectangle Canvas.Left="332" Canvas.Top="194" Width="4" Height="4" Fill="#80A88E45"/>
+      <Canvas IsHitTestVisible="False" Opacity="0.55">
+        <Line X1="0" Y1="74" X2="440" Y2="74" Stroke="#6E5A2424" StrokeThickness="1"/>
+        <Line X1="0" Y1="132" X2="440" Y2="132" Stroke="#4E5A2424" StrokeThickness="1"/>
+        <Line X1="30" Y1="0" X2="30" Y2="620" Stroke="#38492A2A" StrokeThickness="1"/>
+        <Line X1="408" Y1="0" X2="408" Y2="620" Stroke="#38492A2A" StrokeThickness="1"/>
+        <Rectangle Canvas.Left="8" Canvas.Top="12" Width="7" Height="44" Fill="#A8A11919"/>
+        <Rectangle Canvas.Left="388" Canvas.Top="12" Width="7" Height="44" Fill="#66A11919"/>
+        <Polygon Points="202,10 216,34 188,34" Fill="#66A11919" Stroke="#B6492424" StrokeThickness="1"/>
+        <Line X1="170" Y1="22" X2="234" Y2="22" Stroke="#A6492424" StrokeThickness="1"/>
       </Canvas>
 
       <DockPanel Grid.Row="0">
         <StackPanel DockPanel.Dock="Left">
-          <TextBlock Text="STOCK WATCH" Foreground="#243036" FontSize="14" FontWeight="Black"/>
-          <TextBlock Text="IMPERIAL ICE MAP" Foreground="#6D7475" FontSize="10" FontWeight="Bold" Margin="0,3,0,0"/>
+          <TextBlock Text="HARKONNEN MARKET COMMAND" Foreground="#F0E7DF" FontFamily="Bahnschrift SemiCondensed" FontSize="15" FontWeight="Black"/>
+          <TextBlock Text="LIVE ASSET SURVEILLANCE // GIEDI PRIME" Foreground="#9E7772" FontSize="9" FontWeight="Bold" Margin="0,3,0,0"/>
         </StackPanel>
-        <TextBlock x:Name="ClockText" Text="--" Foreground="#596368" FontSize="11" HorizontalAlignment="Right"/>
+        <TextBlock x:Name="ClockText" Text="--" Foreground="#D64335" FontFamily="Consolas" FontSize="12" FontWeight="Bold" HorizontalAlignment="Right"/>
       </DockPanel>
 
-      <Border Grid.Row="2" BorderBrush="#90B8BCC0" BorderThickness="1" Background="#66EEF0EF" Padding="10">
+      <Border Grid.Row="2" BorderBrush="#8E6E2424" BorderThickness="1" Background="#B1151112" Padding="11">
         <Grid>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
           <StackPanel>
-            <TextBlock Text="模拟组合" Foreground="#6D7475" FontSize="10" FontWeight="Bold"/>
-            <TextBlock x:Name="PortfolioText" Text="$0.00" Foreground="#243036" FontSize="30" FontWeight="Black" Margin="0,4,0,0"/>
+            <TextBlock Text="COMBINED EXPOSURE" Foreground="#9E7772" FontSize="9" FontWeight="Bold"/>
+            <TextBlock x:Name="PortfolioText" Text="$0.00" Foreground="#F0E7DF" FontFamily="Bahnschrift SemiCondensed" FontSize="31" FontWeight="Black" Margin="0,4,0,0"/>
           </StackPanel>
           <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
-            <TextBlock x:Name="PortfolioChangeText" Text="+0.00%" Foreground="#7D6B35" FontFamily="Bahnschrift SemiCondensed, Consolas" FontSize="20" FontWeight="Black" TextAlignment="Right"/>
-            <TextBlock Text="SESSION" Foreground="#7D837F" FontSize="10" FontWeight="Bold" TextAlignment="Right"/>
+            <TextBlock x:Name="PortfolioChangeText" Text="+0.00%" Foreground="#D64335" FontFamily="Bahnschrift SemiCondensed, Consolas" FontSize="21" FontWeight="Black" TextAlignment="Right"/>
+            <TextBlock Text="SESSION DELTA" Foreground="#755D5A" FontSize="9" FontWeight="Bold" TextAlignment="Right"/>
           </StackPanel>
         </Grid>
       </Border>
 
       <StackPanel Grid.Row="4" x:Name="StockList"/>
 
-      <Border Grid.Row="6" CornerRadius="3" Background="#50EEF0EF" BorderBrush="#8AB8BCC0" BorderThickness="1" Padding="9,7">
+      <Border Grid.Row="6" CornerRadius="0" Background="#B1100D0E" BorderBrush="#7E5E2424" BorderThickness="1" Padding="9,7">
         <DockPanel>
-          <Ellipse x:Name="StatusDot" Width="8" Height="8" Fill="#B69A50" DockPanel.Dock="Left" Margin="0,0,8,0"/>
-          <TextBlock x:Name="StatusText" Text="每3分钟自动刷新；鼠标穿透；非置顶" Foreground="#5F696C" FontSize="11"/>
+          <Ellipse x:Name="StatusDot" Width="8" Height="8" Fill="#C72920" DockPanel.Dock="Left" Margin="0,0,8,0"/>
+          <TextBlock x:Name="StatusText" Text="每3分钟自动刷新；鼠标穿透；非置顶" Foreground="#9E7772" FontSize="11"/>
         </DockPanel>
       </Border>
     </Grid>
@@ -157,7 +153,8 @@ function Get-SeededNoise($seed) {
 
 function Get-SymbolLabel($symbol) {
   switch ($symbol.ToUpperInvariant()) {
-    "SPACEX" { return "SPACE X" }
+    "SPCX" { return "SPACE X" }
+    "^GSPC" { return "S&P 500" }
     default { return $symbol.ToUpperInvariant() }
   }
 }
@@ -165,10 +162,11 @@ function Get-SymbolLabel($symbol) {
 function Get-SymbolSubtext($symbol) {
   switch ($symbol.ToUpperInvariant()) {
     "QQQ" { return "Nasdaq 100 ETF" }
+    "^GSPC" { return "S&P 500 Index" }
     "SMH" { return "Semiconductor ETF" }
     "M" { return "Macy's" }
     "AMZN" { return "Amazon" }
-    "SPACEX" { return "私募估值 / N/A" }
+    "SPCX" { return "SpaceX / Nasdaq" }
     default { return "" }
   }
 }
@@ -218,19 +216,6 @@ function Get-StockSnapshot($symbol) {
   $label = Get-SymbolLabel $symbol
   $subtext = Get-SymbolSubtext $symbol
 
-  if ($symbol -eq "SPACEX") {
-    return [pscustomobject]@{
-      Symbol = $symbol
-      Label = $label
-      Subtext = $subtext
-      Price = $null
-      Change = 0
-      Values = @()
-      IsLive = $false
-      Note = "非公开交易"
-    }
-  }
-
   try {
     $result = Get-YahooChart $symbol
     $meta = $result.meta
@@ -259,7 +244,7 @@ function Get-StockSnapshot($symbol) {
     $snapshot = [pscustomobject]@{
       Symbol = $symbol
       Label = $label
-      Subtext = if ($meta.shortName) { [string]$meta.shortName } else { $subtext }
+      Subtext = if ($subtext) { $subtext } elseif ($meta.shortName) { [string]$meta.shortName } else { "" }
       Price = if ($null -ne $price) { [Math]::Round($price, 2) } else { $null }
       Change = $change
       Values = $values
@@ -313,8 +298,8 @@ function Format-Money($value) {
 }
 
 function Get-ChangeBrush($isUp) {
-  if ($isUp) { return "#8A7436" }
-  return "#A65C54"
+  if ($isUp) { return "#C9A35C" }
+  return "#D64335"
 }
 
 function Get-ChangeText($value) {
@@ -325,11 +310,11 @@ function Add-StockRow($item) {
   $isUp = ($item.Change -ge 0)
   $changeBrush = Get-ChangeBrush $isUp
   $row = New-Object System.Windows.Controls.Border
-  $row.CornerRadius = "3"
+  $row.CornerRadius = "0"
   $row.BorderThickness = "1"
-  $row.BorderBrush = if ($isUp) { "#78B8BCC0" } else { "#88A65C54" }
-  $row.Background = if ($isUp) { "#48F3F4F1" } else { "#42EEE6E2" }
-  $row.Padding = "8,5"
+  $row.BorderBrush = if ($isUp) { "#685C4B32" } else { "#906E2424" }
+  $row.Background = if ($isUp) { "#B3131110" } else { "#C0190E0F" }
+  $row.Padding = "9,6"
   $row.Margin = "0,0,0,5"
 
   $grid = New-Object System.Windows.Controls.Grid
@@ -354,7 +339,7 @@ function Add-StockRow($item) {
 
   $name = New-Object System.Windows.Controls.TextBlock
   $name.Text = $item.Label
-  $name.Foreground = "#243036"
+  $name.Foreground = "#F0E7DF"
   $name.FontSize = 13
   $name.FontWeight = [System.Windows.FontWeights]::Black
   $name.FontFamily = "Bahnschrift SemiCondensed, Segoe UI"
@@ -364,7 +349,7 @@ function Add-StockRow($item) {
   $price = New-Object System.Windows.Controls.TextBlock
   $sourceMark = if ($item.IsLive) { "" } else { "  " + $item.Note }
   $price.Text = if ($item.Subtext) { (Format-Money $item.Price) + "  " + $item.Subtext + $sourceMark } else { (Format-Money $item.Price) + $sourceMark }
-  $price.Foreground = "#687174"
+  $price.Foreground = "#9E8E87"
   $price.FontSize = 10
   $price.Margin = "72,2,0,0"
   $price.FontFamily = "Consolas, Segoe UI"
@@ -372,10 +357,10 @@ function Add-StockRow($item) {
   [System.Windows.Controls.Grid]::SetRow($price, 0)
 
   $changeBadge = New-Object System.Windows.Controls.Border
-  $changeBadge.CornerRadius = "3"
+  $changeBadge.CornerRadius = "0"
   $changeBadge.BorderThickness = "1"
   $changeBadge.BorderBrush = $changeBrush
-  $changeBadge.Background = if ($isUp) { "#40D8C896" } else { "#36D9B3AA" }
+  $changeBadge.Background = if ($isUp) { "#303E3020" } else { "#3E561719" }
   $changeBadge.Padding = "7,1"
   $changeBadge.MinWidth = 78
   [System.Windows.Controls.Grid]::SetColumn($changeBadge, 2)
@@ -410,9 +395,9 @@ function Add-StockRow($item) {
     $bar.Width = 16
     $bar.Height = 3 + (($value - $min) / $spread) * 10
     $bar.Margin = "0,0,3,0"
-    $bar.RadiusX = 2
-    $bar.RadiusY = 2
-    $bar.Fill = if ($isUp) { "#B6A15A" } else { "#A65C54" }
+    $bar.RadiusX = 0
+    $bar.RadiusY = 0
+    $bar.Fill = if ($isUp) { "#9B7B43" } else { "#A82D28" }
     $bars.Children.Add($bar) | Out-Null
   }
 
@@ -432,7 +417,7 @@ function Update-Widget {
   foreach ($item in $stockItems) {
     Add-StockRow $item
   }
-  $pricedItems = @($stockItems | Where-Object { $null -ne $_.Price })
+  $pricedItems = @($stockItems | Where-Object { $null -ne $_.Price -and $_.Symbol -ne "^GSPC" })
   $total = if ($pricedItems.Count -gt 0) { ($pricedItems | Measure-Object -Property Price -Sum).Sum * 8 } else { $null }
   $avgChange = if ($pricedItems.Count -gt 0) { ($pricedItems | Measure-Object -Property Change -Average).Average } else { 0 }
   $portfolioText.Text = Format-Money $total
