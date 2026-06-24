@@ -86,6 +86,37 @@ $xaml = @"
         ShowInTaskbar="False"
         ShowActivated="True"
         Topmost="False">
+  <Window.Resources>
+    <Style TargetType="{x:Type ScrollBar}">
+      <Setter Property="Width" Value="8"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type ScrollBar}">
+            <Grid Width="8" Background="Transparent">
+              <Track x:Name="PART_Track" IsDirectionReversed="True">
+                <Track.DecreaseRepeatButton>
+                  <RepeatButton Command="{x:Static ScrollBar.PageUpCommand}" Opacity="0"/>
+                </Track.DecreaseRepeatButton>
+                <Track.Thumb>
+                  <Thumb>
+                    <Thumb.Template>
+                      <ControlTemplate TargetType="{x:Type Thumb}">
+                        <Border Width="4" CornerRadius="2" Background="#806B5353"/>
+                      </ControlTemplate>
+                    </Thumb.Template>
+                  </Thumb>
+                </Track.Thumb>
+                <Track.IncreaseRepeatButton>
+                  <RepeatButton Command="{x:Static ScrollBar.PageDownCommand}" Opacity="0"/>
+                </Track.IncreaseRepeatButton>
+              </Track>
+            </Grid>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </Window.Resources>
   <Border Background="Transparent" BorderThickness="0" Padding="18">
     <Grid Opacity="0.99">
       <Canvas IsHitTestVisible="False">
@@ -169,15 +200,70 @@ $xaml = @"
         </Grid>
       </Border>
 
-      <ScrollViewer x:Name="StockViewport" Grid.Row="4"
-                    VerticalScrollBarVisibility="Hidden"
-                    HorizontalScrollBarVisibility="Disabled"
-                    PanningMode="None"
-                    CanContentScroll="False"
-                    ClipToBounds="True"
-                    Background="Transparent">
-        <StackPanel x:Name="StockList" VerticalAlignment="Top"/>
-      </ScrollViewer>
+      <Grid Grid.Row="4">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="3*"/>
+          <RowDefinition Height="8"/>
+          <RowDefinition Height="2*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" CornerRadius="10" Background="#26110E0F" BorderBrush="#385E4747" BorderThickness="1" Padding="8,6">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="6"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <DockPanel>
+              <TextBlock x:Name="EquityHeader" Text="个股 / EQUITIES" Foreground="#C6B99E" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="Black"/>
+              <TextBlock Text="↕" Foreground="#806B5A56" FontSize="13" HorizontalAlignment="Right"/>
+            </DockPanel>
+            <ScrollViewer x:Name="EquityViewport" Grid.Row="2"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          PanningMode="VerticalOnly"
+                          CanContentScroll="False"
+                          ClipToBounds="True"
+                          Background="Transparent">
+              <StackPanel x:Name="EquityList" VerticalAlignment="Top"/>
+            </ScrollViewer>
+          </Grid>
+        </Border>
+
+        <GridSplitter Grid.Row="1" Height="8" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                      Background="#01000000" Cursor="SizeNS">
+          <GridSplitter.Template>
+            <ControlTemplate TargetType="{x:Type GridSplitter}">
+              <Grid Background="Transparent">
+                <Border Width="54" Height="2" CornerRadius="1" Background="#706B5353" HorizontalAlignment="Center"/>
+              </Grid>
+            </ControlTemplate>
+          </GridSplitter.Template>
+        </GridSplitter>
+
+        <Border Grid.Row="2" CornerRadius="10" Background="#26110E0F" BorderBrush="#385E4747" BorderThickness="1" Padding="8,6">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="6"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <DockPanel>
+              <TextBlock x:Name="FundHeader" Text="指数与 ETF / FUNDS" Foreground="#C6B99E" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="Black"/>
+              <TextBlock Text="↕" Foreground="#806B5A56" FontSize="13" HorizontalAlignment="Right"/>
+            </DockPanel>
+            <ScrollViewer x:Name="FundViewport" Grid.Row="2"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          PanningMode="VerticalOnly"
+                          CanContentScroll="False"
+                          ClipToBounds="True"
+                          Background="Transparent">
+              <StackPanel x:Name="FundList" VerticalAlignment="Top"/>
+            </ScrollViewer>
+          </Grid>
+        </Border>
+      </Grid>
 
       <Border Grid.Row="6" CornerRadius="12" Background="#4A100D0E" BorderBrush="#485E3434" BorderThickness="1" Padding="9,7">
         <DockPanel>
@@ -206,8 +292,12 @@ $window = [Windows.Markup.XamlReader]::Load($reader)
 $clockText = $window.FindName("ClockText")
 $portfolioText = $window.FindName("PortfolioText")
 $portfolioChangeText = $window.FindName("PortfolioChangeText")
-$stockList = $window.FindName("StockList")
-$stockViewport = $window.FindName("StockViewport")
+$equityList = $window.FindName("EquityList")
+$fundList = $window.FindName("FundList")
+$equityViewport = $window.FindName("EquityViewport")
+$fundViewport = $window.FindName("FundViewport")
+$equityHeader = $window.FindName("EquityHeader")
+$fundHeader = $window.FindName("FundHeader")
 $headerDragSurface = $window.FindName("HeaderDragSurface")
 $statusText = $window.FindName("StatusText")
 $addSymbolButton = $window.FindName("AddSymbolButton")
@@ -496,7 +586,7 @@ function Get-ChangeText($value) {
   return "{0}{1:N2}%" -f ($(if ($value -ge 0) { "+" } else { "" }), $value)
 }
 
-function Add-StockRow($item) {
+function Add-StockRow($item, $targetList) {
   $isUp = ($item.Change -ge 0)
   $isUpFromOpen = ($item.OpenChange -ge 0)
   $changeBrush = Get-ChangeBrush $isUp
@@ -662,52 +752,30 @@ function Add-StockRow($item) {
   $grid.Children.Add($chart) | Out-Null
   $grid.Children.Add($stats) | Out-Null
   $row.Child = $grid
-  $stockList.Children.Add($row) | Out-Null
-}
-
-function Add-GroupHeader($title, $count) {
-  $header = New-Object System.Windows.Controls.Grid
-  $header.Margin = "2,7,2,6"
-
-  $label = New-Object System.Windows.Controls.TextBlock
-  $label.Text = "$title  $count"
-  $label.Foreground = "#C6B99E"
-  $label.FontFamily = "Bahnschrift SemiCondensed, Segoe UI"
-  $label.FontSize = 12
-  $label.FontWeight = [System.Windows.FontWeights]::Black
-  $label.HorizontalAlignment = [System.Windows.HorizontalAlignment]::Left
-
-  $rule = New-Object System.Windows.Shapes.Rectangle
-  $rule.Height = 1
-  $rule.Fill = "#405E4747"
-  $rule.Margin = "112,0,0,0"
-  $rule.VerticalAlignment = [System.Windows.VerticalAlignment]::Center
-
-  $header.Children.Add($rule) | Out-Null
-  $header.Children.Add($label) | Out-Null
-  $stockList.Children.Add($header) | Out-Null
+  $targetList.Children.Add($row) | Out-Null
 }
 
 function Update-Widget {
   $stockItems = @($Symbols | ForEach-Object { Get-StockSnapshot $_.ToUpperInvariant() })
   Save-QuoteCache
-  $stockList.Children.Clear()
+  $equityList.Children.Clear()
+  $fundList.Children.Clear()
 
   $equities = @($stockItems | Where-Object { $_.AssetType -notin @("ETF", "INDEX", "MUTUALFUND") })
   $fundsAndIndices = @($stockItems | Where-Object { $_.AssetType -in @("ETF", "INDEX", "MUTUALFUND") })
+  $equityHeader.Text = "个股 / EQUITIES  $($equities.Count)"
+  $fundHeader.Text = "指数与 ETF / FUNDS  $($fundsAndIndices.Count)"
 
   if ($equities.Count -gt 0) {
-    Add-GroupHeader "个股 / EQUITIES" $equities.Count
     foreach ($item in $equities) {
-      try { Add-StockRow $item } catch {
+      try { Add-StockRow $item $equityList } catch {
         $statusText.Text = "$($item.Symbol) 渲染失败，其他行情继续显示"
       }
     }
   }
   if ($fundsAndIndices.Count -gt 0) {
-    Add-GroupHeader "指数与 ETF / FUNDS" $fundsAndIndices.Count
     foreach ($item in $fundsAndIndices) {
-      try { Add-StockRow $item } catch {
+      try { Add-StockRow $item $fundList } catch {
         $statusText.Text = "$($item.Symbol) 渲染失败，其他行情继续显示"
       }
     }
@@ -781,10 +849,6 @@ $heightGrip.Add_DragDelta({
 })
 
 $heightGrip.Add_DragCompleted({ Save-WindowLayout })
-
-$stockViewport.Add_PreviewMouseWheel({
-  $_.Handled = $true
-})
 
 $headerDragSurface.Add_MouseLeftButtonDown({
   if ($_.ChangedButton -eq [System.Windows.Input.MouseButton]::Left) {
