@@ -60,26 +60,27 @@ $xaml = @"
         ShowInTaskbar="False"
         ShowActivated="True"
         Topmost="False">
-  <Border CornerRadius="12"
-          BorderThickness="2"
+  <Border CornerRadius="20"
+          BorderThickness="1"
           Padding="15"
-          Opacity="0.91">
+          Opacity="0.86">
     <Border.BorderBrush>
       <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#B8793737" Offset="0"/>
-        <GradientStop Color="#706A5555" Offset="0.48"/>
-        <GradientStop Color="#A43F1717" Offset="1"/>
+        <GradientStop Color="#667B4A4A" Offset="0"/>
+        <GradientStop Color="#286A5555" Offset="0.42"/>
+        <GradientStop Color="#10503A3A" Offset="0.68"/>
+        <GradientStop Color="#5C5F2929" Offset="1"/>
       </LinearGradientBrush>
     </Border.BorderBrush>
     <Border.Background>
       <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#D7161214" Offset="0"/>
-        <GradientStop Color="#C40A0A0C" Offset="0.55"/>
-        <GradientStop Color="#A91A1113" Offset="1"/>
+        <GradientStop Color="#841B1518" Offset="0"/>
+        <GradientStop Color="#660B0B0D" Offset="0.52"/>
+        <GradientStop Color="#4A211619" Offset="1"/>
       </LinearGradientBrush>
     </Border.Background>
     <Border.Effect>
-      <DropShadowEffect BlurRadius="28" ShadowDepth="0" Opacity="0.42" Color="#120000"/>
+      <DropShadowEffect BlurRadius="42" ShadowDepth="0" Opacity="0.30" Color="#5E1717"/>
     </Border.Effect>
     <Grid>
 
@@ -93,7 +94,7 @@ $xaml = @"
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
-      <Canvas IsHitTestVisible="False" Opacity="0.55">
+      <Canvas IsHitTestVisible="False" Opacity="0.28">
         <Line X1="0" Y1="74" X2="440" Y2="74" Stroke="#6E5A2424" StrokeThickness="1"/>
         <Line X1="0" Y1="132" X2="440" Y2="132" Stroke="#4E5A2424" StrokeThickness="1"/>
         <Line X1="30" Y1="0" X2="30" Y2="620" Stroke="#38492A2A" StrokeThickness="1"/>
@@ -112,7 +113,7 @@ $xaml = @"
         <TextBlock x:Name="ClockText" Text="--" Foreground="#D64335" FontFamily="Consolas" FontSize="12" FontWeight="Bold" HorizontalAlignment="Right"/>
       </DockPanel>
 
-      <Border Grid.Row="2" CornerRadius="7" BorderBrush="#8E6E2424" BorderThickness="1" Background="#96151112" Padding="11">
+      <Border Grid.Row="2" CornerRadius="12" BorderBrush="#526E3B3B" BorderThickness="1" Background="#58151112" Padding="11">
         <Grid>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -131,7 +132,7 @@ $xaml = @"
 
       <StackPanel Grid.Row="4" x:Name="StockList"/>
 
-      <Border Grid.Row="6" CornerRadius="7" Background="#8A100D0E" BorderBrush="#7E5E2424" BorderThickness="1" Padding="9,7">
+      <Border Grid.Row="6" CornerRadius="12" Background="#4A100D0E" BorderBrush="#485E3434" BorderThickness="1" Padding="9,7">
         <DockPanel>
           <Ellipse x:Name="StatusDot" Width="8" Height="8" Fill="#C72920" DockPanel.Dock="Left" Margin="0,0,8,0"/>
           <TextBlock x:Name="StatusText" Text="每3分钟自动刷新；按住拖动；非置顶" Foreground="#9E7772" FontSize="11"/>
@@ -323,10 +324,10 @@ function Add-StockRow($item) {
   $isUp = ($item.Change -ge 0)
   $changeBrush = Get-ChangeBrush $isUp
   $row = New-Object System.Windows.Controls.Border
-  $row.CornerRadius = "6"
+  $row.CornerRadius = "10"
   $row.BorderThickness = "1"
-  $row.BorderBrush = if ($isUp) { "#685C4B32" } else { "#906E2424" }
-  $row.Background = if ($isUp) { "#B3131110" } else { "#C0190E0F" }
+  $row.BorderBrush = if ($isUp) { "#405C4B32" } else { "#526E3030" }
+  $row.Background = if ($isUp) { "#5A131110" } else { "#64190E0F" }
   $row.Padding = "9,6"
   $row.Margin = "0,0,0,5"
 
@@ -370,10 +371,10 @@ function Add-StockRow($item) {
   [System.Windows.Controls.Grid]::SetRow($price, 0)
 
   $changeBadge = New-Object System.Windows.Controls.Border
-  $changeBadge.CornerRadius = "5"
+  $changeBadge.CornerRadius = "8"
   $changeBadge.BorderThickness = "1"
   $changeBadge.BorderBrush = $changeBrush
-  $changeBadge.Background = if ($isUp) { "#303E3020" } else { "#3E561719" }
+  $changeBadge.Background = if ($isUp) { "#243E3020" } else { "#2C561719" }
   $changeBadge.Padding = "7,1"
   $changeBadge.MinWidth = 78
   [System.Windows.Controls.Grid]::SetColumn($changeBadge, 2)
