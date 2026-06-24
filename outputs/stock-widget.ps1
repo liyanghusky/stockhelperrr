@@ -12,7 +12,17 @@ Add-Type -AssemblyName System.Windows.Forms
 $cacheDirectory = Join-Path $env:LOCALAPPDATA "StockWidget"
 $cachePath = Join-Path $cacheDirectory "quotes.json"
 $positionPath = Join-Path $cacheDirectory "position.json"
+$symbolsPath = Join-Path $cacheDirectory "symbols.json"
 $script:quoteCache = @{}
+
+if (Test-Path -LiteralPath $symbolsPath) {
+  try {
+    $savedSymbols = @(Get-Content -LiteralPath $symbolsPath -Raw | ConvertFrom-Json)
+    if ($savedSymbols.Count -gt 0) {
+      $Symbols = @($savedSymbols | ForEach-Object { ([string]$_).Trim().ToUpperInvariant() } | Where-Object { $_ } | Select-Object -Unique)
+    }
+  } catch {}
+}
 
 if (Test-Path -LiteralPath $cachePath) {
   try {
@@ -57,6 +67,7 @@ $xaml = @"
         AllowsTransparency="True"
         Background="Transparent"
         ResizeMode="NoResize"
+        MinHeight="360"
         ShowInTaskbar="False"
         ShowActivated="True"
         Topmost="False">
@@ -72,7 +83,7 @@ $xaml = @"
             <GradientStop Color="#00FFFFFF" Offset="1"/>
           </RadialGradientBrush>
         </Canvas.OpacityMask>
-        <Rectangle Canvas.Left="20" Canvas.Top="24" Width="364" Height="548" RadiusX="34" RadiusY="34" Fill="#B2050506">
+        <Rectangle x:Name="MainSoftField" Canvas.Left="20" Canvas.Top="24" Width="364" Height="548" RadiusX="34" RadiusY="34" Fill="#B2050506">
           <Rectangle.Effect><BlurEffect Radius="58"/></Rectangle.Effect>
         </Rectangle>
         <Ellipse Canvas.Left="16" Canvas.Top="22" Width="344" Height="210" Fill="#30F1EADB">
@@ -93,6 +104,7 @@ $xaml = @"
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="10"/>
+        <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="10"/>
         <RowDefinition Height="*"/>
@@ -116,7 +128,13 @@ $xaml = @"
           <TextBlock Text="HARKONNEN MARKET COMMAND" Foreground="#F0E7DF" FontFamily="Bahnschrift SemiCondensed" FontSize="15" FontWeight="Black"/>
           <TextBlock Text="LIVE ASSET SURVEILLANCE // GIEDI PRIME" Foreground="#9E7772" FontSize="9" FontWeight="Bold" Margin="0,3,0,0"/>
         </StackPanel>
-        <TextBlock x:Name="ClockText" Text="--" Foreground="#D64335" FontFamily="Consolas" FontSize="12" FontWeight="Bold" HorizontalAlignment="Right"/>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+          <Button x:Name="AddSymbolButton" Content="+" Width="28" Height="28" Margin="0,0,10,0"
+                  Foreground="#F0E7DF" Background="#42130F10" BorderBrush="#66734A4A"
+                  BorderThickness="1" FontFamily="Consolas" FontSize="18" FontWeight="Bold"
+                  ToolTip="添加股票代码" Cursor="Hand"/>
+          <TextBlock x:Name="ClockText" Text="--" Foreground="#D64335" FontFamily="Consolas" FontSize="12" FontWeight="Bold" VerticalAlignment="Center"/>
+        </StackPanel>
       </DockPanel>
 
       <Border Grid.Row="2" CornerRadius="12" BorderBrush="#526E3B3B" BorderThickness="1" Background="#58151112" Padding="11">
@@ -136,7 +154,7 @@ $xaml = @"
         </Grid>
       </Border>
 
-      <StackPanel Grid.Row="4" x:Name="StockList"/>
+      <StackPanel Grid.Row="4" x:Name="StockList" ClipToBounds="True"/>
 
       <Border Grid.Row="6" CornerRadius="12" Background="#4A100D0E" BorderBrush="#485E3434" BorderThickness="1" Padding="9,7">
         <DockPanel>
@@ -144,6 +162,16 @@ $xaml = @"
           <TextBlock x:Name="StatusText" Text="每3分钟自动刷新；按住拖动；非置顶" Foreground="#9E7772" FontSize="11"/>
         </DockPanel>
       </Border>
+
+      <Thumb x:Name="HeightGrip" Grid.Row="7" Height="16" Cursor="SizeNS" HorizontalAlignment="Stretch">
+        <Thumb.Template>
+          <ControlTemplate TargetType="{x:Type Thumb}">
+            <Grid Background="Transparent">
+              <Border Width="62" Height="3" CornerRadius="2" Background="#80765B5B" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
+          </ControlTemplate>
+        </Thumb.Template>
+      </Thumb>
       </Grid>
     </Grid>
   </Border>
@@ -157,7 +185,86 @@ $portfolioText = $window.FindName("PortfolioText")
 $portfolioChangeText = $window.FindName("PortfolioChangeText")
 $stockList = $window.FindName("StockList")
 $statusText = $window.FindName("StatusText")
+$addSymbolButton = $window.FindName("AddSymbolButton")
+$heightGrip = $window.FindName("HeightGrip")
+$mainSoftField = $window.FindName("MainSoftField")
 $script:hwnd = [IntPtr]::Zero
+
+function Save-Symbols {
+  try {
+    New-Item -ItemType Directory -Path $cacheDirectory -Force | Out-Null
+    @($script:Symbols) | ConvertTo-Json | Set-Content -LiteralPath $symbolsPath -Encoding UTF8
+  } catch {}
+}
+
+function Save-WindowLayout {
+  try {
+    New-Item -ItemType Directory -Path $cacheDirectory -Force | Out-Null
+    @{
+      Left = $window.Left
+      Top = $window.Top
+      Height = $window.Height
+    } | ConvertTo-Json | Set-Content -LiteralPath $positionPath -Encoding UTF8
+  } catch {}
+}
+
+function Show-AddSymbolDialog {
+  $dialogXaml = @"
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Width="330" Height="178" WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent" ResizeMode="NoResize" ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner">
+  <Border CornerRadius="18" Background="#E0151113" BorderBrush="#88704A4A" BorderThickness="1" Padding="20">
+    <Border.Effect><DropShadowEffect BlurRadius="32" ShadowDepth="0" Opacity="0.45" Color="#200000"/></Border.Effect>
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="12"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="16"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <TextBlock Text="ADD MARKET SYMBOL" Foreground="#F0E7DF" FontFamily="Bahnschrift SemiCondensed" FontSize="15" FontWeight="Black"/>
+      <TextBox x:Name="SymbolInput" Grid.Row="2" Height="34" Padding="9,6" MaxLength="18"
+               Foreground="#F0E7DF" Background="#70100D0F" BorderBrush="#806B4848"
+               BorderThickness="1" FontFamily="Consolas" FontSize="14"/>
+      <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
+        <Button x:Name="CancelButton" Content="取消" Width="70" Height="30" Margin="0,0,8,0"
+                Foreground="#A99E8D" Background="#30100D0E" BorderBrush="#405E4747"/>
+        <Button x:Name="AddButton" Content="添加" Width="70" Height="30"
+                Foreground="#F0E7DF" Background="#70401A1D" BorderBrush="#9A824A4A"/>
+      </StackPanel>
+    </Grid>
+  </Border>
+</Window>
+"@
+  $dialogReader = [System.Xml.XmlReader]::Create([System.IO.StringReader]$dialogXaml)
+  $dialog = [Windows.Markup.XamlReader]::Load($dialogReader)
+  $dialog.Owner = $window
+  $input = $dialog.FindName("SymbolInput")
+  $addButton = $dialog.FindName("AddButton")
+  $cancelButton = $dialog.FindName("CancelButton")
+  $script:newSymbol = $null
+
+  $submit = {
+    $value = ([string]$input.Text).Trim().ToUpperInvariant()
+    if ($value) {
+      $script:newSymbol = $value
+      $dialog.DialogResult = $true
+    }
+  }
+  $addButton.Add_Click($submit)
+  $cancelButton.Add_Click({ $dialog.DialogResult = $false })
+  $input.Add_KeyDown({
+    if ($_.Key -eq [System.Windows.Input.Key]::Enter) { & $submit }
+    elseif ($_.Key -eq [System.Windows.Input.Key]::Escape) { $dialog.DialogResult = $false }
+  })
+  $dialog.Add_ContentRendered({ $input.Focus() | Out-Null })
+  $accepted = $dialog.ShowDialog()
+  if ($accepted -and $script:newSymbol) { return $script:newSymbol }
+  return $null
+}
 
 function Get-SymbolHash($symbol) {
   $sum = 97
@@ -469,6 +576,9 @@ $window.Add_SourceInitialized({
   if (Test-Path -LiteralPath $positionPath) {
     try {
       $position = Get-Content -LiteralPath $positionPath -Raw | ConvertFrom-Json
+      if ($position.PSObject.Properties.Name -contains "Height") {
+        $window.Height = [Math]::Max($window.MinHeight, [double]$position.Height)
+      }
       $window.Left = [Math]::Max($area.Left, [Math]::Min([double]$position.Left, $area.Right - $window.Width))
       $window.Top = [Math]::Max($area.Top, [Math]::Min([double]$position.Top, $area.Bottom - $window.Height))
     } catch {
@@ -479,7 +589,29 @@ $window.Add_SourceInitialized({
     $window.Left = $area.Right - $window.Width - 18
     $window.Top = $area.Top + 360
   }
+  $window.MaxHeight = [Math]::Max($window.MinHeight, $area.Bottom - $window.Top)
 })
+
+$addSymbolButton.Add_Click({
+  $symbol = Show-AddSymbolDialog
+  if (-not $symbol) { return }
+  if (@($script:Symbols) -contains $symbol) {
+    $statusText.Text = "$symbol 已在列表中"
+    return
+  }
+  $script:Symbols = @($script:Symbols) + $symbol
+  Save-Symbols
+  $statusText.Text = "正在添加 $symbol..."
+  Update-Widget
+})
+
+$heightGrip.Add_DragDelta({
+  $area = [System.Windows.SystemParameters]::WorkArea
+  $maxHeight = [Math]::Max($window.MinHeight, $area.Bottom - $window.Top)
+  $window.Height = [Math]::Max($window.MinHeight, [Math]::Min($maxHeight, $window.Height + $_.VerticalChange))
+})
+
+$heightGrip.Add_DragCompleted({ Save-WindowLayout })
 
 $window.Add_MouseLeftButtonDown({
   if ($_.ChangedButton -eq [System.Windows.Input.MouseButton]::Left) {
@@ -488,10 +620,13 @@ $window.Add_MouseLeftButtonDown({
 })
 
 $window.Add_LocationChanged({
-  try {
-    New-Item -ItemType Directory -Path $cacheDirectory -Force | Out-Null
-    @{ Left = $window.Left; Top = $window.Top } | ConvertTo-Json | Set-Content -LiteralPath $positionPath -Encoding UTF8
-  } catch {}
+  Save-WindowLayout
+})
+
+$window.Add_SizeChanged({
+  if ($null -ne $mainSoftField) {
+    $mainSoftField.Height = [Math]::Max(250, $window.ActualHeight - 72)
+  }
 })
 
 $timer = New-Object Windows.Threading.DispatcherTimer
