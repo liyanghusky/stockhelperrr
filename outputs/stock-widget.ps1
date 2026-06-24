@@ -386,6 +386,7 @@ function Get-StockSnapshot($symbol) {
       OpenChange = $openChange
       DayLow = $dayLow
       DayHigh = $dayHigh
+      AssetType = if ($meta.instrumentType) { [string]$meta.instrumentType } else { "EQUITY" }
       Values = $values
       IsLive = $true
       Note = "Yahoo Finance"
@@ -400,6 +401,7 @@ function Get-StockSnapshot($symbol) {
       OpenChange = $snapshot.OpenChange
       DayLow = $snapshot.DayLow
       DayHigh = $snapshot.DayHigh
+      AssetType = $snapshot.AssetType
       Values = $snapshot.Values
       SavedAt = (Get-Date).ToString("o")
     }
@@ -417,6 +419,7 @@ function Get-StockSnapshot($symbol) {
         OpenChange = ConvertTo-DoubleOrNull $cached.OpenChange
         DayLow = ConvertTo-DoubleOrNull $cached.DayLow
         DayHigh = ConvertTo-DoubleOrNull $cached.DayHigh
+        AssetType = if ($cached.AssetType) { [string]$cached.AssetType } elseif ($symbol.StartsWith("^")) { "INDEX" } else { "EQUITY" }
         Values = @($cached.Values)
         IsLive = $false
         Note = "缓存"
@@ -432,6 +435,7 @@ function Get-StockSnapshot($symbol) {
       OpenChange = 0
       DayLow = $null
       DayHigh = $null
+      AssetType = if ($symbol.StartsWith("^")) { "INDEX" } else { "EQUITY" }
       Values = @()
       IsLive = $false
       Note = "读取失败"
@@ -590,7 +594,8 @@ function Add-StockRow($item) {
   $polyline.Points = $points
   $chart.Children.Add($polyline) | Out-Null
 
-  foreach ($pointIndex in @(0, $points.Count - 1)) {
+  $lastPointIndex = $points.Count - 1
+  foreach ($pointIndex in @(0, $lastPointIndex)) {
     if ($pointIndex -lt 0 -or $pointIndex -ge $points.Count) { continue }
     $dot = New-Object System.Windows.Shapes.Ellipse
     $dot.Width = if ($pointIndex -eq $points.Count - 1) { 7 } else { 5 }
@@ -622,12 +627,52 @@ function Add-StockRow($item) {
   $stockList.Children.Add($row) | Out-Null
 }
 
+function Add-GroupHeader($title, $count) {
+  $header = New-Object System.Windows.Controls.Grid
+  $header.Margin = "2,7,2,6"
+
+  $label = New-Object System.Windows.Controls.TextBlock
+  $label.Text = "$title  $count"
+  $label.Foreground = "#C6B99E"
+  $label.FontFamily = "Bahnschrift SemiCondensed, Segoe UI"
+  $label.FontSize = 12
+  $label.FontWeight = [System.Windows.FontWeights]::Black
+  $label.HorizontalAlignment = [System.Windows.HorizontalAlignment]::Left
+
+  $rule = New-Object System.Windows.Shapes.Rectangle
+  $rule.Height = 1
+  $rule.Fill = "#405E4747"
+  $rule.Margin = "112,0,0,0"
+  $rule.VerticalAlignment = [System.Windows.VerticalAlignment]::Center
+
+  $header.Children.Add($rule) | Out-Null
+  $header.Children.Add($label) | Out-Null
+  $stockList.Children.Add($header) | Out-Null
+}
+
 function Update-Widget {
   $stockItems = @($Symbols | ForEach-Object { Get-StockSnapshot $_.ToUpperInvariant() })
   Save-QuoteCache
   $stockList.Children.Clear()
-  foreach ($item in $stockItems) {
-    Add-StockRow $item
+
+  $equities = @($stockItems | Where-Object { $_.AssetType -notin @("ETF", "INDEX", "MUTUALFUND") })
+  $fundsAndIndices = @($stockItems | Where-Object { $_.AssetType -in @("ETF", "INDEX", "MUTUALFUND") })
+
+  if ($equities.Count -gt 0) {
+    Add-GroupHeader "个股 / EQUITIES" $equities.Count
+    foreach ($item in $equities) {
+      try { Add-StockRow $item } catch {
+        $statusText.Text = "$($item.Symbol) 渲染失败，其他行情继续显示"
+      }
+    }
+  }
+  if ($fundsAndIndices.Count -gt 0) {
+    Add-GroupHeader "指数与 ETF / FUNDS" $fundsAndIndices.Count
+    foreach ($item in $fundsAndIndices) {
+      try { Add-StockRow $item } catch {
+        $statusText.Text = "$($item.Symbol) 渲染失败，其他行情继续显示"
+      }
+    }
   }
   $pricedItems = @($stockItems | Where-Object { $null -ne $_.Price -and $_.Symbol -ne "^GSPC" })
   $total = if ($pricedItems.Count -gt 0) { ($pricedItems | Measure-Object -Property Price -Sum).Sum * 8 } else { $null }
