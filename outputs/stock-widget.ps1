@@ -1,5 +1,5 @@
 ﻿param(
-  [string[]]$Symbols = @("SPCX", "^GSPC", "AAPL", "NVDA", "TSLA", "AMZN", "QQQ", "SMH", "M")
+  [string[]]$Symbols = @("SPCX", "NVDA", "AMZN", "TSLA", "AAPL", "^GSPC", "QQQ", "SMH")
 )
 
 Add-Type -AssemblyName PresentationFramework
@@ -17,12 +17,27 @@ $script:quoteCache = @{}
 
 if (Test-Path -LiteralPath $symbolsPath) {
   try {
-    $savedSymbols = @(Get-Content -LiteralPath $symbolsPath -Raw | ConvertFrom-Json)
+    $savedValue = Get-Content -LiteralPath $symbolsPath -Raw | ConvertFrom-Json
+    $savedSymbols = @(
+      foreach ($entry in @($savedValue)) {
+        @(([string]$entry) -split '[,\s]+' | Where-Object { $_ })
+      }
+    )
     if ($savedSymbols.Count -gt 0) {
-      $Symbols = @($savedSymbols | ForEach-Object { ([string]$_).Trim().ToUpperInvariant() } | Where-Object { $_ } | Select-Object -Unique)
+      $Symbols = @($savedSymbols | ForEach-Object { ([string]$_).Trim().ToUpperInvariant() } | Where-Object { $_ -and $_ -ne "M" } | Select-Object -Unique)
     }
   } catch {}
 }
+
+$preferredOrder = @("SPCX", "NVDA", "AMZN", "TSLA", "AAPL", "^GSPC", "QQQ", "SMH")
+$orderedSymbols = New-Object System.Collections.Generic.List[string]
+foreach ($candidate in $preferredOrder) {
+  if ($Symbols -contains $candidate) { $orderedSymbols.Add($candidate) }
+}
+foreach ($candidate in @($Symbols)) {
+  if ($candidate -notin $preferredOrder -and $candidate -ne "M") { $orderedSymbols.Add($candidate) }
+}
+$Symbols = @($orderedSymbols)
 
 if (Test-Path -LiteralPath $cachePath) {
   try {
@@ -123,7 +138,7 @@ $xaml = @"
         <Line X1="170" Y1="22" X2="234" Y2="22" Stroke="#A6492424" StrokeThickness="1"/>
       </Canvas>
 
-      <DockPanel Grid.Row="0">
+      <DockPanel x:Name="HeaderDragSurface" Grid.Row="0" Background="#01000000" Cursor="SizeAll">
         <StackPanel DockPanel.Dock="Left">
           <TextBlock Text="HARKONNEN MARKET COMMAND" Foreground="#F0E7DF" FontFamily="Bahnschrift SemiCondensed" FontSize="15" FontWeight="Black"/>
           <TextBlock Text="LIVE ASSET SURVEILLANCE // GIEDI PRIME" Foreground="#9E7772" FontSize="9" FontWeight="Bold" Margin="0,3,0,0"/>
@@ -193,6 +208,7 @@ $portfolioText = $window.FindName("PortfolioText")
 $portfolioChangeText = $window.FindName("PortfolioChangeText")
 $stockList = $window.FindName("StockList")
 $stockViewport = $window.FindName("StockViewport")
+$headerDragSurface = $window.FindName("HeaderDragSurface")
 $statusText = $window.FindName("StatusText")
 $addSymbolButton = $window.FindName("AddSymbolButton")
 $heightGrip = $window.FindName("HeightGrip")
@@ -202,7 +218,7 @@ $script:hwnd = [IntPtr]::Zero
 function Save-Symbols {
   try {
     New-Item -ItemType Directory -Path $cacheDirectory -Force | Out-Null
-    @($script:Symbols) | ConvertTo-Json | Set-Content -LiteralPath $symbolsPath -Encoding UTF8
+    ConvertTo-Json -InputObject @($script:Symbols) | Set-Content -LiteralPath $symbolsPath -Encoding UTF8
   } catch {}
 }
 
@@ -256,20 +272,33 @@ function Show-AddSymbolDialog {
   $cancelButton = $dialog.FindName("CancelButton")
   $script:newSymbol = $null
 
-  $submit = {
-    $value = ([string]$input.Text).Trim().ToUpperInvariant()
+  $addButton.Add_Click({
+    $dialogWindow = [System.Windows.Window]::GetWindow($this)
+    $symbolInput = $dialogWindow.FindName("SymbolInput")
+    $value = ([string]$symbolInput.Text).Trim().ToUpperInvariant()
     if ($value) {
       $script:newSymbol = $value
-      $dialog.DialogResult = $true
+      $dialogWindow.DialogResult = $true
     }
-  }
-  $addButton.Add_Click($submit)
-  $cancelButton.Add_Click({ $dialog.DialogResult = $false })
-  $input.Add_KeyDown({
-    if ($_.Key -eq [System.Windows.Input.Key]::Enter) { & $submit }
-    elseif ($_.Key -eq [System.Windows.Input.Key]::Escape) { $dialog.DialogResult = $false }
   })
-  $dialog.Add_ContentRendered({ $input.Focus() | Out-Null })
+  $cancelButton.Add_Click({
+    [System.Windows.Window]::GetWindow($this).DialogResult = $false
+  })
+  $input.Add_KeyDown({
+    $dialogWindow = [System.Windows.Window]::GetWindow($this)
+    if ($_.Key -eq [System.Windows.Input.Key]::Enter) {
+      $value = ([string]$this.Text).Trim().ToUpperInvariant()
+      if ($value) {
+        $script:newSymbol = $value
+        $dialogWindow.DialogResult = $true
+      }
+    } elseif ($_.Key -eq [System.Windows.Input.Key]::Escape) {
+      $dialogWindow.DialogResult = $false
+    }
+  })
+  $dialog.Add_ContentRendered({
+    $this.FindName("SymbolInput").Focus() | Out-Null
+  })
   $accepted = $dialog.ShowDialog()
   if ($accepted -and $script:newSymbol) { return $script:newSymbol }
   return $null
@@ -714,11 +743,12 @@ $window.Add_SourceInitialized({
   if (Test-Path -LiteralPath $positionPath) {
     try {
       $position = Get-Content -LiteralPath $positionPath -Raw | ConvertFrom-Json
-      if ($position.PSObject.Properties.Name -contains "Height") {
-        $window.Height = [Math]::Max($window.MinHeight, [double]$position.Height)
-      }
       $window.Left = [Math]::Max($area.Left, [Math]::Min([double]$position.Left, $area.Right - $window.Width))
-      $window.Top = [Math]::Max($area.Top, [Math]::Min([double]$position.Top, $area.Bottom - $window.Height))
+      $window.Top = [Math]::Max($area.Top, [Math]::Min([double]$position.Top, $area.Bottom - $window.MinHeight))
+      $availableHeight = [Math]::Max($window.MinHeight, $area.Bottom - $window.Top)
+      if ($position.PSObject.Properties.Name -contains "Height") {
+        $window.Height = [Math]::Max($window.MinHeight, [Math]::Min([double]$position.Height, $availableHeight))
+      }
     } catch {
       $window.Left = $area.Right - $window.Width - 18
       $window.Top = $area.Top + 360
@@ -728,6 +758,7 @@ $window.Add_SourceInitialized({
     $window.Top = $area.Top + 360
   }
   $window.MaxHeight = [Math]::Max($window.MinHeight, $area.Bottom - $window.Top)
+  if ($window.Height -gt $window.MaxHeight) { $window.Height = $window.MaxHeight }
 })
 
 $addSymbolButton.Add_Click({
@@ -755,8 +786,9 @@ $stockViewport.Add_PreviewMouseWheel({
   $_.Handled = $true
 })
 
-$window.Add_MouseLeftButtonDown({
+$headerDragSurface.Add_MouseLeftButtonDown({
   if ($_.ChangedButton -eq [System.Windows.Input.MouseButton]::Left) {
+    if ($addSymbolButton.IsMouseOver) { return }
     try { $window.DragMove() } catch {}
   }
 })
@@ -776,6 +808,7 @@ $timer.Interval = [TimeSpan]::FromMinutes(3)
 $timer.Add_Tick({ Update-Widget })
 $timer.Start()
 
+Save-Symbols
 Update-Widget
 $window.ShowDialog() | Out-Null
 
