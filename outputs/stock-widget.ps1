@@ -105,10 +105,10 @@ $xaml = @"
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="10"/>
         <RowDefinition Height="Auto"/>
-        <RowDefinition Height="Auto"/>
         <RowDefinition Height="10"/>
         <RowDefinition Height="*"/>
         <RowDefinition Height="10"/>
+        <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
@@ -154,7 +154,15 @@ $xaml = @"
         </Grid>
       </Border>
 
-      <StackPanel Grid.Row="4" x:Name="StockList" ClipToBounds="True"/>
+      <ScrollViewer x:Name="StockViewport" Grid.Row="4"
+                    VerticalScrollBarVisibility="Hidden"
+                    HorizontalScrollBarVisibility="Disabled"
+                    PanningMode="None"
+                    CanContentScroll="False"
+                    ClipToBounds="True"
+                    Background="Transparent">
+        <StackPanel x:Name="StockList" VerticalAlignment="Top"/>
+      </ScrollViewer>
 
       <Border Grid.Row="6" CornerRadius="12" Background="#4A100D0E" BorderBrush="#485E3434" BorderThickness="1" Padding="9,7">
         <DockPanel>
@@ -184,6 +192,7 @@ $clockText = $window.FindName("ClockText")
 $portfolioText = $window.FindName("PortfolioText")
 $portfolioChangeText = $window.FindName("PortfolioChangeText")
 $stockList = $window.FindName("StockList")
+$stockViewport = $window.FindName("StockViewport")
 $statusText = $window.FindName("StatusText")
 $addSymbolButton = $window.FindName("AddSymbolButton")
 $heightGrip = $window.FindName("HeightGrip")
@@ -741,6 +750,10 @@ $heightGrip.Add_DragDelta({
 })
 
 $heightGrip.Add_DragCompleted({ Save-WindowLayout })
+
+$stockViewport.Add_PreviewMouseWheel({
+  $_.Handled = $true
+})
 
 $window.Add_MouseLeftButtonDown({
   if ($_.ChangedButton -eq [System.Windows.Input.MouseButton]::Left) {
