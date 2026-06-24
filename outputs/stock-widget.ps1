@@ -349,7 +349,7 @@ function Get-StockSnapshot($symbol) {
     $meta = $result.meta
     $quote = $result.indicators.quote[0]
     $closes = @($quote.close | ForEach-Object { ConvertTo-DoubleOrNull $_ } | Where-Object { $null -ne $_ })
-    $values = @($closes | Select-Object -Last 14 | ForEach-Object { [Math]::Round($_, 2) })
+    $values = @($closes | ForEach-Object { [Math]::Round($_, 2) })
     $price = ConvertTo-DoubleOrNull $meta.regularMarketPrice
     if ($null -eq $price -and $values.Count -gt 0) {
       $price = $values[$values.Count - 1]
@@ -368,6 +368,14 @@ function Get-StockSnapshot($symbol) {
     } else {
       0
     }
+    $sessionOpen = if ($values.Count -gt 0) { [double]$values[0] } else { $price }
+    $openChange = if ($null -ne $price -and $null -ne $sessionOpen -and $sessionOpen -ne 0) {
+      (($price - $sessionOpen) / $sessionOpen) * 100
+    } else {
+      0
+    }
+    $dayLow = if ($values.Count -gt 0) { ($values | Measure-Object -Minimum).Minimum } else { $price }
+    $dayHigh = if ($values.Count -gt 0) { ($values | Measure-Object -Maximum).Maximum } else { $price }
 
     $snapshot = [pscustomobject]@{
       Symbol = $symbol
@@ -375,6 +383,9 @@ function Get-StockSnapshot($symbol) {
       Subtext = if ($subtext) { $subtext } elseif ($meta.shortName) { [string]$meta.shortName } else { "" }
       Price = if ($null -ne $price) { [Math]::Round($price, 2) } else { $null }
       Change = $change
+      OpenChange = $openChange
+      DayLow = $dayLow
+      DayHigh = $dayHigh
       Values = $values
       IsLive = $true
       Note = "Yahoo Finance"
@@ -386,6 +397,9 @@ function Get-StockSnapshot($symbol) {
       Subtext = $snapshot.Subtext
       Price = $snapshot.Price
       Change = $snapshot.Change
+      OpenChange = $snapshot.OpenChange
+      DayLow = $snapshot.DayLow
+      DayHigh = $snapshot.DayHigh
       Values = $snapshot.Values
       SavedAt = (Get-Date).ToString("o")
     }
@@ -400,6 +414,9 @@ function Get-StockSnapshot($symbol) {
         Subtext = [string]$cached.Subtext
         Price = ConvertTo-DoubleOrNull $cached.Price
         Change = ConvertTo-DoubleOrNull $cached.Change
+        OpenChange = ConvertTo-DoubleOrNull $cached.OpenChange
+        DayLow = ConvertTo-DoubleOrNull $cached.DayLow
+        DayHigh = ConvertTo-DoubleOrNull $cached.DayHigh
         Values = @($cached.Values)
         IsLive = $false
         Note = "缓存"
@@ -412,6 +429,9 @@ function Get-StockSnapshot($symbol) {
       Subtext = if ($subtext) { $subtext } else { "行情暂不可用" }
       Price = $null
       Change = 0
+      OpenChange = 0
+      DayLow = $null
+      DayHigh = $null
       Values = @()
       IsLive = $false
       Note = "读取失败"
@@ -436,52 +456,75 @@ function Get-ChangeText($value) {
 
 function Add-StockRow($item) {
   $isUp = ($item.Change -ge 0)
+  $isUpFromOpen = ($item.OpenChange -ge 0)
   $changeBrush = Get-ChangeBrush $isUp
+  $trendBrush = Get-ChangeBrush $isUpFromOpen
   $row = New-Object System.Windows.Controls.Border
   $row.CornerRadius = "10"
   $row.BorderThickness = "1"
   $row.BorderBrush = if ($isUp) { "#405C4B32" } else { "#526E3030" }
   $row.Background = if ($isUp) { "#5A131110" } else { "#64190E0F" }
-  $row.Padding = "9,6"
-  $row.Margin = "0,0,0,5"
+  $row.Padding = "10,8"
+  $row.Margin = "0,0,0,7"
 
   $grid = New-Object System.Windows.Controls.Grid
-  $grid.RowDefinitions.Add((New-Object System.Windows.Controls.RowDefinition)) | Out-Null
-  $grid.RowDefinitions.Add((New-Object System.Windows.Controls.RowDefinition)) | Out-Null
+  foreach ($height in @("Auto", "42", "Auto")) {
+    $definition = New-Object System.Windows.Controls.RowDefinition
+    $definition.Height = $height
+    $grid.RowDefinitions.Add($definition) | Out-Null
+  }
   $accentCol = New-Object System.Windows.Controls.ColumnDefinition
   $accentCol.Width = "3"
   $grid.ColumnDefinitions.Add($accentCol) | Out-Null
-  $grid.ColumnDefinitions.Add((New-Object System.Windows.Controls.ColumnDefinition)) | Out-Null
-  $col2 = New-Object System.Windows.Controls.ColumnDefinition
-  $col2.Width = "Auto"
-  $grid.ColumnDefinitions.Add($col2) | Out-Null
+  $nameCol = New-Object System.Windows.Controls.ColumnDefinition
+  $nameCol.Width = "*"
+  $grid.ColumnDefinitions.Add($nameCol) | Out-Null
+  $priceCol = New-Object System.Windows.Controls.ColumnDefinition
+  $priceCol.Width = "Auto"
+  $grid.ColumnDefinitions.Add($priceCol) | Out-Null
+  $changeCol = New-Object System.Windows.Controls.ColumnDefinition
+  $changeCol.Width = "Auto"
+  $grid.ColumnDefinitions.Add($changeCol) | Out-Null
 
   $accent = New-Object System.Windows.Shapes.Rectangle
   $accent.Width = 2
   $accent.Margin = "0,1,7,1"
   $accent.RadiusX = 2
   $accent.RadiusY = 2
-  $accent.Fill = $changeBrush
+  $accent.Fill = $trendBrush
   [System.Windows.Controls.Grid]::SetColumn($accent, 0)
-  [System.Windows.Controls.Grid]::SetRowSpan($accent, 2)
+  [System.Windows.Controls.Grid]::SetRowSpan($accent, 3)
+
+  $identity = New-Object System.Windows.Controls.StackPanel
+  $identity.Orientation = [System.Windows.Controls.Orientation]::Vertical
+  [System.Windows.Controls.Grid]::SetColumn($identity, 1)
+  [System.Windows.Controls.Grid]::SetRow($identity, 0)
 
   $name = New-Object System.Windows.Controls.TextBlock
   $name.Text = $item.Label
   $name.Foreground = "#F0E7DF"
-  $name.FontSize = 13
+  $name.FontSize = 16
   $name.FontWeight = [System.Windows.FontWeights]::Black
   $name.FontFamily = "Bahnschrift SemiCondensed, Segoe UI"
-  [System.Windows.Controls.Grid]::SetColumn($name, 1)
-  [System.Windows.Controls.Grid]::SetRow($name, 0)
+
+  $subtext = New-Object System.Windows.Controls.TextBlock
+  $subtext.Text = if ($item.IsLive) { [string]$item.Subtext } else { "$($item.Subtext)  $($item.Note)" }
+  $subtext.Foreground = "#887A74"
+  $subtext.FontSize = 9
+  $subtext.TextTrimming = [System.Windows.TextTrimming]::CharacterEllipsis
+  $subtext.MaxWidth = 128
+  $identity.Children.Add($name) | Out-Null
+  $identity.Children.Add($subtext) | Out-Null
 
   $price = New-Object System.Windows.Controls.TextBlock
-  $sourceMark = if ($item.IsLive) { "" } else { "  " + $item.Note }
-  $price.Text = if ($item.Subtext) { (Format-Money $item.Price) + "  " + $item.Subtext + $sourceMark } else { (Format-Money $item.Price) + $sourceMark }
-  $price.Foreground = "#9E8E87"
-  $price.FontSize = 10
-  $price.Margin = "72,2,0,0"
-  $price.FontFamily = "Consolas, Segoe UI"
-  [System.Windows.Controls.Grid]::SetColumn($price, 1)
+  $price.Text = Format-Money $item.Price
+  $price.Foreground = "#F0E7DF"
+  $price.FontSize = 20
+  $price.FontWeight = [System.Windows.FontWeights]::Bold
+  $price.Margin = "8,0,10,0"
+  $price.VerticalAlignment = [System.Windows.VerticalAlignment]::Center
+  $price.FontFamily = "Bahnschrift SemiCondensed, Consolas"
+  [System.Windows.Controls.Grid]::SetColumn($price, 2)
   [System.Windows.Controls.Grid]::SetRow($price, 0)
 
   $changeBadge = New-Object System.Windows.Controls.Border
@@ -489,51 +532,92 @@ function Add-StockRow($item) {
   $changeBadge.BorderThickness = "1"
   $changeBadge.BorderBrush = $changeBrush
   $changeBadge.Background = if ($isUp) { "#243E3020" } else { "#2C561719" }
-  $changeBadge.Padding = "7,1"
-  $changeBadge.MinWidth = 78
-  [System.Windows.Controls.Grid]::SetColumn($changeBadge, 2)
+  $changeBadge.Padding = "8,3"
+  $changeBadge.MinWidth = 82
+  $changeBadge.VerticalAlignment = [System.Windows.VerticalAlignment]::Center
+  [System.Windows.Controls.Grid]::SetColumn($changeBadge, 3)
   [System.Windows.Controls.Grid]::SetRow($changeBadge, 0)
 
   $change = New-Object System.Windows.Controls.TextBlock
   $change.Text = Get-ChangeText $item.Change
   $change.Foreground = $changeBrush
   $change.FontFamily = "Bahnschrift SemiCondensed, Consolas"
-  $change.FontSize = 16
+  $change.FontSize = 19
   $change.FontWeight = [System.Windows.FontWeights]::Black
   $change.TextAlignment = [System.Windows.TextAlignment]::Right
   $changeBadge.Child = $change
 
-  $bars = New-Object System.Windows.Controls.StackPanel
-  $bars.Orientation = [System.Windows.Controls.Orientation]::Horizontal
-  $bars.VerticalAlignment = [System.Windows.VerticalAlignment]::Bottom
-  $bars.Margin = "0,4,0,0"
-  [System.Windows.Controls.Grid]::SetColumn($bars, 1)
-  [System.Windows.Controls.Grid]::SetColumnSpan($bars, 2)
-  [System.Windows.Controls.Grid]::SetRow($bars, 1)
+  $chart = New-Object System.Windows.Controls.Canvas
+  $chart.Height = 38
+  $chart.Margin = "0,3,0,1"
+  $chart.ClipToBounds = $true
+  [System.Windows.Controls.Grid]::SetColumn($chart, 1)
+  [System.Windows.Controls.Grid]::SetColumnSpan($chart, 3)
+  [System.Windows.Controls.Grid]::SetRow($chart, 1)
 
-  $barValues = @($item.Values)
-  if ($barValues.Count -eq 0) {
-    $barValues = @(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-  }
-  $min = ($barValues | Measure-Object -Minimum).Minimum
-  $max = ($barValues | Measure-Object -Maximum).Maximum
+  $chartValues = @($item.Values)
+  if ($chartValues.Count -eq 0) { $chartValues = @(0, 0) }
+  $min = ($chartValues | Measure-Object -Minimum).Minimum
+  $max = ($chartValues | Measure-Object -Maximum).Maximum
   $spread = [Math]::Max(0.01, $max - $min)
-  foreach ($value in $barValues) {
-    $bar = New-Object System.Windows.Shapes.Rectangle
-    $bar.Width = 16
-    $bar.Height = 3 + (($value - $min) / $spread) * 10
-    $bar.Margin = "0,0,3,0"
-    $bar.RadiusX = 0
-    $bar.RadiusY = 0
-    $bar.Fill = if ($isUp) { "#9B7B43" } else { "#A82D28" }
-    $bars.Children.Add($bar) | Out-Null
+  $chartWidth = 354.0
+  $chartHeight = 34.0
+  $baselineValue = [double]$chartValues[0]
+  $baselineY = $chartHeight - (($baselineValue - $min) / $spread) * $chartHeight
+
+  $baseline = New-Object System.Windows.Shapes.Line
+  $baseline.X1 = 0
+  $baseline.X2 = $chartWidth
+  $baseline.Y1 = $baselineY
+  $baseline.Y2 = $baselineY
+  $baseline.Stroke = "#407E6A65"
+  $baseline.StrokeThickness = 1
+  $baseline.StrokeDashArray = New-Object System.Windows.Media.DoubleCollection
+  $baseline.StrokeDashArray.Add(3)
+  $baseline.StrokeDashArray.Add(3)
+  $chart.Children.Add($baseline) | Out-Null
+
+  $polyline = New-Object System.Windows.Shapes.Polyline
+  $polyline.Stroke = $trendBrush
+  $polyline.StrokeThickness = 2.6
+  $polyline.StrokeLineJoin = [System.Windows.Media.PenLineJoin]::Round
+  $points = New-Object System.Windows.Media.PointCollection
+  for ($i = 0; $i -lt $chartValues.Count; $i++) {
+    $x = if ($chartValues.Count -le 1) { 0 } else { ($i / ($chartValues.Count - 1)) * $chartWidth }
+    $y = $chartHeight - (([double]$chartValues[$i] - $min) / $spread) * $chartHeight
+    $points.Add([System.Windows.Point]::new($x, $y))
   }
+  $polyline.Points = $points
+  $chart.Children.Add($polyline) | Out-Null
+
+  foreach ($pointIndex in @(0, $points.Count - 1)) {
+    if ($pointIndex -lt 0 -or $pointIndex -ge $points.Count) { continue }
+    $dot = New-Object System.Windows.Shapes.Ellipse
+    $dot.Width = if ($pointIndex -eq $points.Count - 1) { 7 } else { 5 }
+    $dot.Height = $dot.Width
+    $dot.Fill = if ($pointIndex -eq $points.Count - 1) { $trendBrush } else { "#A99E8D" }
+    [System.Windows.Controls.Canvas]::SetLeft($dot, $points[$pointIndex].X - ($dot.Width / 2))
+    [System.Windows.Controls.Canvas]::SetTop($dot, $points[$pointIndex].Y - ($dot.Height / 2))
+    $chart.Children.Add($dot) | Out-Null
+  }
+
+  $stats = New-Object System.Windows.Controls.TextBlock
+  $stats.Text = "开盘→现在 $(Get-ChangeText $item.OpenChange)    低 $(Format-Money $item.DayLow)    高 $(Format-Money $item.DayHigh)"
+  $stats.Foreground = $trendBrush
+  $stats.FontFamily = "Consolas, Segoe UI"
+  $stats.FontSize = 11
+  $stats.FontWeight = [System.Windows.FontWeights]::Bold
+  $stats.Margin = "0,2,0,0"
+  [System.Windows.Controls.Grid]::SetColumn($stats, 1)
+  [System.Windows.Controls.Grid]::SetColumnSpan($stats, 3)
+  [System.Windows.Controls.Grid]::SetRow($stats, 2)
 
   $grid.Children.Add($accent) | Out-Null
-  $grid.Children.Add($name) | Out-Null
+  $grid.Children.Add($identity) | Out-Null
   $grid.Children.Add($price) | Out-Null
   $grid.Children.Add($changeBadge) | Out-Null
-  $grid.Children.Add($bars) | Out-Null
+  $grid.Children.Add($chart) | Out-Null
+  $grid.Children.Add($stats) | Out-Null
   $row.Child = $grid
   $stockList.Children.Add($row) | Out-Null
 }
