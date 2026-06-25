@@ -215,7 +215,7 @@ $xaml = @"
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <DockPanel>
-              <TextBlock x:Name="EquityHeader" Text="个股 / EQUITIES" Foreground="#C6B99E" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="Black"/>
+              <TextBlock x:Name="EquityHeader" Text="个股 / EQUITIES" Foreground="#DCD8D2" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="Black"/>
               <TextBlock Text="↕" Foreground="#806B5A56" FontSize="13" HorizontalAlignment="Right"/>
             </DockPanel>
             <ScrollViewer x:Name="EquityViewport" Grid.Row="2"
@@ -249,7 +249,7 @@ $xaml = @"
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <DockPanel>
-              <TextBlock x:Name="FundHeader" Text="指数与 ETF / FUNDS" Foreground="#C6B99E" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="Black"/>
+              <TextBlock x:Name="FundHeader" Text="指数与 ETF / FUNDS" Foreground="#DCD8D2" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="Black"/>
               <TextBlock Text="↕" Foreground="#806B5A56" FontSize="13" HorizontalAlignment="Right"/>
             </DockPanel>
             <ScrollViewer x:Name="FundViewport" Grid.Row="2"
@@ -346,7 +346,7 @@ function Show-AddSymbolDialog {
                BorderThickness="1" FontFamily="Consolas" FontSize="14"/>
       <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
         <Button x:Name="CancelButton" Content="取消" Width="70" Height="30" Margin="0,0,8,0"
-                Foreground="#A99E8D" Background="#30100D0E" BorderBrush="#405E4747"/>
+                Foreground="#CBC7C1" Background="#30100D0E" BorderBrush="#405E4747"/>
         <Button x:Name="AddButton" Content="添加" Width="70" Height="30"
                 Foreground="#F0E7DF" Background="#70401A1D" BorderBrush="#9A824A4A"/>
       </StackPanel>
@@ -578,7 +578,7 @@ function Format-Money($value) {
 }
 
 function Get-ChangeBrush($isUp) {
-  if ($isUp) { return "#C9A35C" }
+  if ($isUp) { return "#EEEAE4" }
   return "#D64335"
 }
 
@@ -728,7 +728,7 @@ function Add-StockRow($item, $targetList) {
     $dot = New-Object System.Windows.Shapes.Ellipse
     $dot.Width = if ($pointIndex -eq $points.Count - 1) { 7 } else { 5 }
     $dot.Height = $dot.Width
-    $dot.Fill = if ($pointIndex -eq $points.Count - 1) { $trendBrush } else { "#A99E8D" }
+    $dot.Fill = if ($pointIndex -eq $points.Count - 1) { $trendBrush } else { "#CBC7C1" }
     [System.Windows.Controls.Canvas]::SetLeft($dot, $points[$pointIndex].X - ($dot.Width / 2))
     [System.Windows.Controls.Canvas]::SetTop($dot, $points[$pointIndex].Y - ($dot.Height / 2))
     $chart.Children.Add($dot) | Out-Null
